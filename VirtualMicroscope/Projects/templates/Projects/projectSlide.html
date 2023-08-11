@@ -1,0 +1,289 @@
+{% extends "generica.html" %}
+{% block content %}
+<style>
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.4);
+}
+
+.modal-contenido {
+  background-color: #fff;
+  margin: 10% auto;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  width: 60%;
+}
+
+.cerrar {
+  color: #aaaaaa;
+  float: right;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.boton-cerrar {
+  padding: 8px 16px;
+  margin-right: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.boton-enviar {
+  padding: 8px 16px;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+</style>
+
+<div style="padding-left: 2%;padding-right: 1%;width: 100%;height: 100%;">  
+<script type="text/javascript">
+    
+    $(document).ready(function() {
+         
+        var abrirModal = document.getElementById('abrirModal');
+        var modal = document.getElementById('miModal');
+        var cerrarModal = document.getElementById('cerrarModal');
+        var cerrarModal2 = document.getElementById('cerrarModal2');
+
+        abrirModal.addEventListener('click', function() {
+        modal.style.display = 'block';
+        });
+
+        cerrarModal.addEventListener('click', function() {
+        modal.style.display = 'none';
+        });
+
+        cerrarModal2.addEventListener('click', function() {
+        modal.style.display = 'none';
+        });
+
+        window.addEventListener('click', function(event) {
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+        });
+
+        var i = "{{projectSlide.slide.path}}";
+        var h = "{{projectSlide.slide.zoomI}}";
+        var j = "{{projectSlide.slide.zoomM}}";
+
+
+        //var datosGeoJSON = JSON.parse('{% autoescape off %}{{ notes.geojson_data|escapejs }}{% endautoescape %}');
+
+        //window.alert(datosGeoJSON);
+
+        var imageBounds = L.latLngBounds(
+        L.latLng(-62, -115),  // Coordenadas del borde inferior izquierdo
+        L.latLng(62, 115)   // Coordenadas del borde superior derecho
+        );
+        
+        var slide_url_format = "/media/slides/"+i+"/{z}/{y}/{x}.jpg";
+        
+        var map = L.map('map', {
+            center: [0,0],
+            zoom: h,
+            animate: true
+        });
+
+        var customZoomControl = L.control.zoom({
+            position: 'bottomright'
+        }).addTo(map);
+
+        // Después de agregar el control de zoom personalizado,
+        // puedes eliminar el control de zoom por defecto.
+        map.removeControl(map.zoomControl);
+
+        var layer =  L.tileLayer(slide_url_format, {
+            minZoom:2,
+            noWrap: true,
+            keepBuffer:8,
+            maxZoom:j
+        }).addTo(map);
+
+        // map.on('zoomend', function () {
+        //     var currentZoom = map.getZoom();
+        //     customZoomControl._mapZoom = currentZoom; // Actualizar el zoom del control personalizado
+        // });
+
+        // // Cambiar el comportamiento de los botones de zoom
+        // var zoomControl = map.zoomControl;
+        // zoomControl._zoomInButton.innerHTML = '+';
+        // zoomControl._zoomOutButton.innerHTML = '-';
+
+        // document.getElementById('zoomIn').addEventListener('click', function () {
+        //     map.setZoom(map.getZoom() + 0.5);
+        // });
+
+        // document.getElementById('zoomOut').addEventListener('click', function () {
+        //     map.setZoom(map.getZoom() - 0.5);
+        // });
+        
+        var pos = map.getBounds();
+
+        var pos11,ps12,pos21,pos22
+ 
+        var popup = L.popup();    
+        function onMapClick(e) {
+        popup
+            .openOn(map);
+        
+        }   
+        
+        //var geojsonLayer = L.geoJSON(datosGeoJSON).addTo(map);
+
+        $('#MyButton').click(function(e){
+           // map.fitBounds(pos);
+            pos11 = parseFloat("{{notes.xUnoPos}}".replace(',', '.'));
+            pos12 = parseFloat("{{notes.yUnoPos}}".replace(',', '.'));
+            pos21 = parseFloat("{{notes.xDosPos}}".replace(',', '.'));
+            pos22 = parseFloat("{{notes.yDosPos}}".replace(',', '.'));
+            map.fitBounds([
+                [pos11, pos12],
+                [pos21, pos22]
+            ]);
+        });
+
+        // function eliminarNota(id) {
+        //     // Realizar la solicitud AJAX para eliminar la nota
+        //     $.ajax({
+        //         url: `/delete/${id}`,
+        //         type: 'DELETE',
+        //         success: function () {
+        //         // Si la eliminación fue exitosa, actualizar la lista
+        //         actualizarLista();
+        //         },
+        //         error: function (error) {
+        //         // Manejar errores si es necesario
+        //         console.log(error);
+        //         }
+        //     });
+        // }
+
+        //     function actualizarLista() {
+        //     // Realizar la solicitud AJAX para obtener la lista actualizada
+        //     $.ajax({
+        //         url: '/ruta_para_obtener_lista_actualizada/',  // Reemplaza por la URL de tu vista en Django
+        //         type: 'GET',
+        //         success: function (data) {
+        //         // Reemplazar el contenido de la lista con los datos actualizados
+        //         $('#id_de_lista').html(data);
+        //         },
+        //         error: function (error) {
+        //         // Manejar errores si es necesario
+        //         console.log(error);
+        //         }
+        //     });
+        // }
+        map.on('zoomstart', function () {
+            map.setMaxBounds(null);
+        });
+
+        // Restablecer los límites cuando finaliza el zoom
+        map.on('zoomend', function () {
+            map.setMaxBounds(imageBounds);
+        });
+    });  
+    
+</script>
+<div id="map" style="position: absolute;background-color:rgb(0, 0, 0);left: 2%;top:8%;z-index:0;width:96%;height: 90%"></div> 
+<div style = "position: absolute; left: 2%;top: 7%;z-index:1; width:22%; height: 93%;">
+    <!-- <button class="btn btn-primary js-tooltip" onclick="w3_open()"></button> -->
+ 
+<!-- <div style="position: relative; float: left;left: 2%; top:2%;width: 96%">
+    <div style="padding: 1%;box-shadow: 1px 1px 3px rgb(100, 99, 99); z-index:1;border-radius:10px 10px 0 0;background-color:rgb(255, 255, 255);width: 100%">
+        <h3 style="text-align: center;">Anotaciones</h3> 
+        
+    </div>
+</div>
+<div style="float:left;height:3%;width:100%"></div> -->
+<div style="position: relative; float: left;top:2%;left: 2%; width: 96%">
+    <div style="padding: 0%; border-radius:10px ;box-shadow: 1px 1px 3px rgb(100, 99, 99); z-index:1;background-color:rgb(255, 255, 255,0.8);width: 100%">
+        
+        <button id="abrirModal" style="width: 100%;"class="btn btn-outline-dark btn-block js-tooltip" type="submit" >Nueva Nota +</button>
+        
+                   
+               
+    </div>
+</div>
+
+<div id="miModal" class="modal">
+    <div class="modal-contenido">
+    <span class="cerrar" id="cerrarModal">&times;</span>
+    <h2>Nueva Nota</h2>
+    <form method="POST" > 
+        {% csrf_token %}
+        {{ form.as_p }}
+        <!-- Otros campos de formulario... -->
+            <div style="position: relative; left: 2%;" class="botones">
+                <button type="submit" class="boton-enviar btn-primary">crear</button>
+                <button type="button" class="boton-cerrar btn-danger " id="cerrarModal2">Cancelar</button>
+            </div>
+    </form>
+    </div>
+</div>
+
+<div style="position: relative;top:2%; overflow-y: scroll;height: 85%; width: 100%;">
+    
+      {%load static%} 
+      {%for note in apuntes%}
+      <div style="float:left;height:1%;width:100%"></div>
+      <div style="padding: 1%;position: relative; float: left;left: 2%; width: 96%">
+      <div style="padding: 2%;box-shadow: 1px 1px 3px rgb(100, 99, 99); z-index:1;border-radius:10px;background-color:rgba(255, 255, 255, 0.8);width: 100%">
+        <h3 style="text-align: center;">{{note.name}}</h3> 
+      
+      <button class="btn btn-outline-info js-tooltip" type="submit" onclick="location.href='{{ note.get_absolute_url }}'">Ver</button>
+      
+      <button class="btn btn-outline-danger js-tooltip" type="submit" onclick="location.href='/delete/{{note.id}}'">Eliminar</button>
+      <!-- <button class="btn btn-outline-danger js-tooltip" type="submit" onclick="location.href='/delete/{{note.id}}'">Eliminar</button> -->
+          
+        </div>
+    </div>
+    
+        {%endfor%}
+    </div>
+    
+    
+</div>
+<div style = "position: absolute; right: 3%;top:10%;padding: 0%;border-radius:10px; background-color:rgba(221, 220, 220, 0.8);width:10%">
+    <button style=" width: 100%;" class="btn btn-outline-dark  btn-block js-tooltip" type="submit" onclick="location.href='/projectDetail/{{projectSlide.project.id}}/0/0'">Retroceder</button>
+</div>
+<!-- <div style="position: absolute;padding:1%; bottom:3%; right: 3%; z-index:2;padding: 1%;box-shadow: 1px 1px 10px rgb(100, 99, 99);border-radius:30px;background: rgb(255, 255, 255);width: 20%;height: 35%">
+    <h3 style="font-family: Georgia;color: rgb(0, 0, 0);text-align: center;">{{notes.name}}:</h3>  
+<div style="margin-left: 1%; border-radius:10px;background: rgb(238, 238, 238);padding:1%; overflow-y: scroll;position: relative;float: left; width: 98%;height: 83%">
+
+<h4 style="font-family: Georgia;color: rgb(0, 0, 0);text-align: center;">{{notes.description}}</h4>
+</div> 
+<div style="width: 100%;height: 5%;"></div>
+
+    
+</div> -->
+
+<!-- <div style="right: 2%;padding-left: 2.5% ;z-index:2; padding-top: 0.7% ;padding-right: 1% ;position: absolute;float: left;width: 20%;">   
+    <button class="btn btn-outline-dark btn-block js-tooltip" onclick="location.href='{{ notes.projectSlide.get_absolute_url }}'" type="submit">Pantalla completa</button>
+     
+    <input id="MyButton" class="btn btn-outline-dark btn-block js-tooltip" type="button" value="Ir al cuadro" >            
+    <button class="btn btn-outline-dark btn-block js-tooltip" onclick="location.href='{{ notes.projectSlide.get_absolute_url }}'" type="submit">Nueva nota</button>
+    
+</div>    -->
+<!-- <div id="map" style="float: left;position: relative;background-color:rgb(0, 0, 0);left: 0%;top:2%;width:96%;height: 90%"></div>    -->
+
+
+  
+<!-- <button style="position: relative;top: 10%;left: 30%;" class="btn btn-primary js-tooltip" type="submit" onclick="location.href='{% url 'Catalogo' %}'">Retroceder</button>
+ 
+<input id="MyButton" style="position: relative;top: 10%;left: 30%;" class="btn btn-primary js-tooltip" type="button" value="SET" onclick="onMap();">
+     -->
+    </div>
+{% endblock %}
+
+

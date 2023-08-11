@@ -1,0 +1,58 @@
+
+{% block content %}
+{%load static%} 
+hola
+
+
+    {%for option in catalogo%}
+
+    <div style="position: relative; float: left;left: 2%; width: 96%">
+    <div style="padding: 2%; box-shadow: 1px 1px 3px rgb(100, 99, 99);border-radius:10px;background-color:rgb(255, 255, 255);width: 100%">
+    <h3 style="text-align: center;">{{option.name}}</h3> 
+    </li>
+    <button class="btn btn-outline-info js-tooltip" type="submit" onclick="location.href='{{ option.get_absolute_url }}'">Ver</button>
+
+    <button class="btn btn-outline-info js-tooltip" type="submit" onclick="location.href='{{ option.get_absolute_url }}'">Detalles</button>
+    <button class="btn btn-outline-danger js-tooltip" type="submit" onclick="location.href='/delete/{{note.id}}'">Eliminar</button>
+        
+    </div>
+    </div>
+    <div style="float:left;height:1%;width:100%"></div>
+    {%endfor%}
+
+{%if lista == 1%}
+    {%for option in catalogo%}
+
+    <div style="position: relative; float: left;left: 2%; width: 96%">
+    <div style="padding: 2%; box-shadow: 1px 1px 3px rgb(100, 99, 99);border-radius:10px;background-color:rgb(255, 255, 255);width: 100%">
+    <h3 style="text-align: center;">{{option.name}}</h3> 
+    </li>
+    <button class="btn btn-outline-info js-tooltip" type="submit" onclick="location.href='{{ option.get_absolute_url }}'">Ver</button>
+
+    <button class="btn btn-outline-info js-tooltip" type="submit" onclick="location.href='{{ option.get_absolute_url }}'">Detalles</button>
+    <button class="btn btn-outline-danger js-tooltip" type="submit" onclick="location.href='/delete/{{note.id}}'">Eliminar</button>
+        
+    </div>
+    </div>
+    <div style="float:left;height:1%;width:100%"></div>
+    {%endfor%}
+{%endif%}
+
+{%if lista == 3%}
+    {%for option in usuarios%}
+
+    <div style="position: relative; float: left;left: 2%; width: 96%">
+    <div style="padding: 2%; box-shadow: 1px 1px 3px rgb(100, 99, 99);border-radius:10px;background-color:rgb(255, 255, 255);width: 100%">
+    <h3 style="text-align: center;">{{option.name}}</h3> 
+    </li>
+    <button class="btn btn-outline-info js-tooltip" type="submit" onclick="location.href='{{ option.get_absolute_url }}'">Ver</button>
+
+    <button class="btn btn-outline-info js-tooltip" type="submit" onclick="location.href='{{ option.get_absolute_url }}'">Detalles</button>
+    <button class="btn btn-outline-danger js-tooltip" type="submit" onclick="location.href='/delete/{{note.id}}'">Eliminar</button>
+        
+    </div>
+    </div>
+    <div style="float:left;height:1%;width:100%"></div>
+    {%endfor%}
+{%endif%}
+{% endblock %}

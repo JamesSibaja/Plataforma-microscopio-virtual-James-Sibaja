@@ -1,0 +1,18 @@
+{
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [1, 5],
+          [11, 10],
+          [21, 7],
+          [15, 21]
+        ]
+      ]
+    },
+    "properties": {
+      "nombre": "Ejemplo de polígono"
+    }
+  }
+  
