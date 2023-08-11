@@ -7,6 +7,7 @@ run:
 
 install: 
 	sudo apt-get install python3.6
+	sudo apt install python3-pip
 	sudo apt install -y zip unzip
 	pip3 install Django==2.2.11
 	pip3 install jsonfield
