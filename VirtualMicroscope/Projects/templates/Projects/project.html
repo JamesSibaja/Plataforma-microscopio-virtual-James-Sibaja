@@ -3,8 +3,34 @@
 {% block content %}
 
 <style>
-
-    .menu {
+.barra-busqueda {
+    display: flex;
+    align-items: center;
+    max-width: 300px; /* Ajusta el ancho máximo según tus necesidades */
+    margin: 0 auto; /* Centra horizontalmente */
+    background-color: #f0f0f0;
+    border-radius: 25px;
+    padding: 5px;
+}
+.titulo-y-botones {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+.input-busqueda {
+    flex: 1;
+    padding: 10px;
+    outline: none;
+}
+.boton-busqueda {
+    background-color: #ffffff;
+    border: none;
+    border-radius: 10%;
+    padding: 5px 10px;
+    cursor: pointer;
+    color: #1f1f1f;
+}
+.menu {
   position: relative;
   display: inline-block;
 }
@@ -36,21 +62,71 @@
   color: #333;
 }
 
+.btn-opcion {
+    display: inline-block;
+    border-radius: 10px;
+    color: #333;
+    text-decoration: none;
+    /* transition: background-color 0.3s, color 0.3s; */
+}
+
+.btn-opcion:hover {
+    color: #ee1a1a;
+}
+
 .menu-list li a:hover {
   background-color: #ddd;
 }
 
-.menu:hover .menu-list {
-  display: block;
-}
 #map.custom-cursor {
     cursor: crosshair; /* Estilo de cursor personalizado */
 }
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 2;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.4);
+}
 
+.modal-contenido {
+  background-color: #fff;
+  margin: 10% auto;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  width: 60%;
+}
+
+.cerrar {
+  color: #aaaaaa;
+  float: right;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.boton-cerrar {
+  padding: 8px 16px;
+  margin-right: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.boton-enviar {
+  padding: 8px 16px;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+}
 </style>
 <div style="padding-left: 2%;padding-right: 1%;width: 100%;height: 100%;">  
 <script type="text/javascript">
-        
+    var geojson_list = {{ geojson_list|safe }};
     $(document).ready(function() {
         
         var project = "{{ project.id }}";
@@ -58,6 +134,11 @@
         var ver = 0;
         var cat = 1;
         // document.getElementById("slide").value = 1; 
+        var abrirModal = document.getElementById('abrirModal');
+        var modal = document.getElementById('miModal');
+        var cerrarModal = document.getElementById('cerrarModal');
+        var cerrarModal2 = document.getElementById('cerrarModal2');
+      
         function actualizarDatos(url,option) {
 
             
@@ -67,6 +148,7 @@
                 type: 'GET',
                 dataType: 'json',
                 success: function (data) {
+                    
                     var listaActualizada = generarHTMLLista(data,option);
                     $('#datos_actualizados').html(listaActualizada);
                     
@@ -82,47 +164,61 @@
             html='';
             switch(option) {
             case 'placas':
-                for (var i = 0; i < data.name.length; i++) {
-                    html += '<div style="position: relative; float: left;left: 2%; width: 96%">'+
-                                '<div style="padding: 2%; box-shadow: 1px 1px 3px rgb(100, 99, 99);border-radius:10px;background-color:rgb(255, 255, 255);width: 100%">'+
-                                '<h3 style="text-align: center;">'+data.name[i]+'</h3>'+
-                                '<button style="width:100%"class="btn btn-outline-info js-tooltip" type="submit" onclick="location.href='+"'/projectDetail/{{project.id}}/1/"+data.id[i]+"'"+'"">Ver</button>\n'+
-                                // '<button class="btn btn-outline-info js-tooltip" type="submit"  onclick="location.href='+"'/projectSlideDetail/"+data.id[i]+"'"+'"">Detalles</button>\n'+
-                                // '<button class="btn btn-outline-danger js-tooltip" type="submit"  onclick="location.href='+"'/projectDetail/23/"+data.id[i]+"'"+'"">Eliminar</button>'+
-                                '</div>'+
-                                '</div>'+
-                                '<div style="float:left;height:1%;width:100%"></div>';
-                    
+                if (data.name.length){ 
+                    for (var i = 0; i < data.name.length; i++) {
+                        html += '<div style="position: relative; float: left;left: 2%; width: 96%">'+
+                                    '<div style="padding: 2%; box-shadow: 1px 1px 3px rgb(100, 99, 99);border-radius:10px;background-color:rgb(255, 255, 255);width: 100%">'+
+                                    '<h3 style="text-align: center;">'+data.name[i]+'</h3>'+
+                                    '<button style="width:100%"class="btn btn-outline-info js-tooltip" type="submit" onclick="location.href='+"'/projectDetail/{{project.id}}/1/"+data.id[i]+"'"+'"">Abrir</button>\n'+
+                                    // '<button class="btn btn-outline-info js-tooltip" type="submit"  onclick="location.href='+"'/projectSlideDetail/"+data.id[i]+"'"+'"">Detalles</button>\n'+
+                                    // '<button class="btn btn-outline-danger js-tooltip" type="submit"  onclick="location.href='+"'/projectDetail/23/"+data.id[i]+"'"+'"">Eliminar</button>'+
+                                    '</div>'+
+                                    '</div>'+
+                                    '<div style="float:left;height:1%;width:100%"></div>';
+                        
+                    }
+                }else{
+                    html += '<div style="position: relative; float: left;left: 2%; width: 90%;padding: 5%;">'+
+                        '<h4> No se encontraron láminas virtules </h4>'+
+                        '</div>';
                 }
                 break;
             case 'catalogo':
-                for (var i = 0; i < data.name.length; i++) {
-                    html += '<div style="position: relative; left: 2%;float: left;padding: 2%; box-shadow: 1px 1px 3px rgb(100, 99, 99);border-radius:10px;background-color:rgb(255, 255, 255);width: 96%">'+
-                                    '<h3 style="text-align: center;">'+data.name[i]+'</h3>'+
-                                    '<div style="width: 50%;position: relative; float: left;left: 2%;">' +
-                                        '<img src="'+data.image[i]+'" style="box-shadow: 1px 1px 10px rgb(100, 99, 99);width: 100%;border-radius:10px">'+ 
-                                    '</div >' +
-                                        '<div style="padding: 2%;width: 40%;overflow-y: scroll;position: absolute;height:60%;right:5%;">' +
-                                            '<h5 style="ptext-align: center">'+data.description[i]+'</h5>'+
+                if (data.name.length){ 
+                    for (var i = 0; i < data.name.length; i++) {
+                        html += '<div style="position: relative; left: 2%;float: left;padding: 2%; box-shadow: 1px 1px 3px rgb(100, 99, 99);border-radius:10px;background-color:rgb(255, 255, 255);width: 96%">'+
+                                        '<h3 style="text-align: center;">'+data.name[i]+'</h3>'+
+                                        '<div style="width: 96%;padding-bottom: 50%;position: relative; float: left;left: 2%;">' +
+                                            '<img style="box-shadow: 1px 1px 10px rgb(100, 99, 99);border-radius:10px;object-fit: cover;width: 100%;height: 100%;position: absolute;" src="'+data.image[i]+'" >'+ 
                                         '</div >' +
-                                        '<button style="position: absolute;right:5%;bottom:2%;width: 40%;"class="btn btn-outline-info js-tooltip" type="submit" onclick="location.href='+"'/projectDetail/{{project.id}}/2/"+data.id[i]+"'"+'"">Ver</button>'+
-                                       
-                                     
-                                   '</div >' +
-                                // '<button class="btn btn-outline-info js-tooltip" type="submit"  onclick="location.href='+"'/projectSlideDetail/"+data.id[i]+"'"+'"">Detalles</button>\n'+
-                                // '<button class="btn btn-outline-danger js-tooltip" type="submit"  onclick="location.href='+"'/projectDetail/23/"+data.id[i]+"'"+'"">Eliminar</button>'+
-                                '</div>'+
-                                '<div style="float:left;height:1%;width:100%"></div>';                    
+                                            // '<div style="padding: 2%;width: 40%;overflow-y: scroll;position: absolute;height:60%;right:5%;">' +
+                                            //     '<h5 style="ptext-align: center">'+data.description[i]+'</h5>'+
+                                            // '</div >' +
+                                            '<div style="float:left;width:100%;padding:2%">'+
+                                                '<button style="width: 100%;"class="btn btn-outline-info js-tooltip" type="submit" onclick="location.href='+"'/projectDetail/{{project.id}}/2/"+data.id[i]+"'"+'"">Ver</button>\n'+
+                                                // '<button style="width: 49%;"class="btn btn-outline-primary js-tooltip" type="submit" onclick="location.href='+"'/projectDetail/{{project.id}}/2/"+data.id[i]+"'"+'"">Crear Lámina</button>'+
+                                            '</div >' +
+                                    '</div >' +
+                                    // '<button class="btn btn-outline-info js-tooltip" type="submit"  onclick="location.href='+"'/projectSlideDetail/"+data.id[i]+"'"+'"">Detalles</button>\n'+
+                                    // '<button class="btn btn-outline-danger js-tooltip" type="submit"  onclick="location.href='+"'/projectDetail/23/"+data.id[i]+"'"+'"">Eliminar</button>'+
+                                    
+                                    '<div style="float:left;height:1%;width:100%"></div>';                    
+                    }
+                }else{
+                    html += '<div style="position: relative; float: left;left: 2%; width: 90%;padding: 5%;">'+
+                        '<h4> No se encontraron láminas virtules en el catalogo</h4>'+
+                        '</div>';
                 }
                 break;
             default:
-                html += '<div style="height:50%">';
+                html += '<div style="height:50%; overflow-y: scroll;">';
                 if (data.nameS){
                     for (var i = 0; i < data.nameS.length; i++) {
                         html += '<div style="position: relative; float: left;left: 2%; width: 96%">'+
                                     '<div style="padding: 2%; box-shadow: 1px 1px 3px rgb(100, 99, 99);border-radius:10px;background-color:rgb(255, 255, 255);width: 100%">'+
-                                    '<h3 style="text-align: center;">'+data.nameS[i]+'</h3>'+
-                                    '<button style="width:100%" class="btn btn-outline-info js-tooltip" type="submit" onclick="location.href='+"'/newProjectUser/{{project.id}}/"+data.idS[i]+"'"+'"">Añadir como colaborador</button>\n'+
+                                    '<h3 style="text-align: center;"> Usuario: '+data.nameS[i]+'</h3>'+
+                                    '<h4 style="text-align: center;"> Nombre: '+data.fullname[i]+'</h4>'+
+                                    '<button style="width:100%" class="btn btn-outline-info js-tooltip" type="submit" onclick="location.href='+"'/newProjectInvitedUser/{{project.id}}/"+data.idS[i]+"'"+'"">Añadir como colaborador</button>\n'+
                                     // '<button class="btn btn-outline-info js-tooltip" type="submit"  onclick="location.href='+"'/projectSlideDetail/"+data.id[i]+"'"+'"">Detalles</button>\n'+
                                     // '<button class="btn btn-outline-danger js-tooltip" type="submit"  onclick="location.href='+"'/projectDetail/23/"+data.id[i]+"'"+'"">Eliminar</button>'+
                                     '</div>'+
@@ -130,13 +226,17 @@
                                     '<div style="float:left;height:1%;width:100%"></div>';
                         
                     }   
-                } 
+                } else{
+                    html += '<div style="position: relative; float: left;left: 2%; width: 90%;padding: 5%;">'+
+                        '<h4> Para añadir un nuevo colaborador, ingrese un usuario valido en el buscardor</h4>'+
+                        '</div>';
+                }
                 html +='</div>'+
                 '<div style="text-align: center;position: relative;height:5%"><h4>Lista de colaboradores</h4></div>'+
                 '<div style="height:2%;width:100%"></div>'+
                 '<div style=" overflow-y: scroll;height:43%">'+'<div style="position: relative; float: left;left: 2%; width: 96%">'+
                 '<div style="padding: 2%; box-shadow: 1px 1px 3px rgb(100, 99, 99);border-radius:10px;background-color:rgb(255, 255, 255);width: 100%">'+
-                '<h3 style="text-align: center;">'+data.ownerN+'</h3>'+
+                '<h3 style="text-align: center;">'+data.ownerN+' (Propietario)</h3> '+
                 '<table style="padding: 15px;text-align: right;width:100%">'+
                 '</table>'+
                 '</div>'+
@@ -146,12 +246,19 @@
                     if(data.id[i]!=data.ownerID){
                             html += '<div style="position: relative; float: left;left: 2%; width: 96%">'+
                                 '<div style="padding: 2%; box-shadow: 1px 1px 3px rgb(100, 99, 99);border-radius:10px;background-color:rgb(255, 255, 255);width: 100%">'+
-                                '<h3 style="text-align: center;">'+data.name[i]+'</h3>'+
+                                    '<div class="titulo-y-botones">'+
+                                    '<h3 style="text-align: center;">'+data.name[i]+'</h3>';
+                                console.log(data.ownerID.toString());
+                                console.log('{{user_id}}');
+                                if(data.ownerID.toString()=='{{user_id}}'){
+                                    html += '<a href="#" style="display: inline-block;display: flex;position: absolute;right: 2%;"><i   class="btn-opcion material-icons" onclick="location.href='+"'/deleteProjectUser/{{project.id}}/"+data.id[i]+"'"+'"" >person_remove</i></a>';
+                                }
+                                html += '</div>'+
                                 '<table style="padding: 15px;text-align: right;width:100%">'+
                                 '<tr>'+
-                                '<td "></td>';
-                                
-                                    html += '<td><button style="position: relative;right:1%" class="btn btn-outline-danger js-tooltip" type="submit" onclick="location.href='+"'/deleteProjectUser/{{project.id}}/"+data.id[i]+"'"+'"">Eliminar colaborador</button></td>';
+                                '<td "></td>';''
+                                    // html += '<td><i style="position: relative;right:1%" onclick="location.href='+"'/deleteProjectUser/{{project.id}}/"+data.id[i]+"'"+'"" class="material-icons">person_remove</i></td>';
+                                    // html += '<td><button style="position: relative;right:1%" class="btn btn-outline-danger js-tooltip" type="submit" onclick="location.href='+"'/deleteProjectUser/{{project.id}}/"+data.id[i]+"'"+'"">Eliminar colaborador</button></td>';
                                 
                                 html += '</tr>'+
                                 '</table>'+
@@ -169,23 +276,47 @@
         // Agrega el evento para actualizar los datos al hacer clic en el botón
         $('#placas_btn').on('click', function() {
             //document.getElementById("make").value = true; 
+            hideMenu()
             optionMenu = 1;
-            
             actualizarDatos('/datos_actualizados_placas/'+project+'/_','placas');
 
         });
         $('#catalogo_btn').on('click', function() {
             //document.getElementById("make").value = true; 
             optionMenu = 2;
+            hideMenu()
             actualizarDatos('/datos_actualizados_catalogo/'+project+'/_','catalogo');
 
         });
         $('#colaboradores_btn').on('click', function() {
             //document.getElementById("make").value = true; 
             optionMenu = 3;
+            hideMenu()
             actualizarDatos('/datos_actualizados_colaboradores/'+project+'/_','colaboradores');
 
         });
+
+        // function showMenu() {
+        // var menu = document.getElementById("menuList");
+        //     menu.style.display = "block";
+        // }
+
+        function hideMenu() {
+            var menu = document.getElementById("menuList");
+            menu.style.display = "none";
+        }
+
+        var menu = document.querySelector(".menu");
+        var menuList = document.querySelector(".menu-list");
+
+        menu.addEventListener("mouseover", function() {
+            menuList.style.display = "block";
+        });
+
+        menu.addEventListener("mouseout", function() {
+            menuList.style.display = "none";
+        });
+
         $('#btn_buscar').on('click', function() {
             if(optionMenu<2){
                 buscarInfo= document.getElementById("buscarDato").value;
@@ -208,28 +339,32 @@
         });
 
         if("{{optionNum}}"==0){
+
+            opcionClick('Láminas Virtuales')
             actualizarDatos('/datos_actualizados_placas/'+project+'/_','placas');
         }
         if("{{optionNum}}"==1){
             var i = "{{mapSlide.slide.path}}";
             var h = "{{mapSlide.slide.zoomI}}";
             var j = "{{mapSlide.slide.zoomM}}";
+            opcionClick('Láminas Virtuales')
             actualizarDatos('/datos_actualizados_placas/'+project+'/_','placas');
         }
         if("{{optionNum}}"==2){
             var i = "{{mapSlide.path}}";
             var h = "{{mapSlide.zoomI}}";
             var j = "{{mapSlide.zoomM}}";
+            opcionClick('Catálogo')
             actualizarDatos('/datos_actualizados_catalogo/'+project+'/_','catalogo');
         }
         if("{{optionNum}}"==3){
-            
+            opcionClick('Colaboradores')
             actualizarDatos('/datos_actualizados_colaboradores/'+project+'/_','colaboradores');
 
         }
         var slide_url_format = "/media/slides/"+i+"/{z}/{y}/{x}.jpg";
 
-       
+        
         //window.alert(JSON.stringify(datosGeoJSON));
         var polygon = [null];
         var polyLine = [null];
@@ -254,7 +389,36 @@
             keepBuffer:8,
             maxZoom:j
         }).addTo(map);
-
+        if("{{optionNum}}"==1){
+            for (var i = 0; i < geojson_list.length; i++) {
+                var geojson = JSON.parse(geojson_list[i].geojson);
+                console.log(geojson);
+                L.geoJSON(geojson, {
+                style: function (feature) {
+                    return { color: feature.properties.color };
+                },
+                pointToLayer: function (feature, latlng) {
+                    
+                    if (feature.geometry.type === "Point" && feature.properties.radius) {
+                        if (feature.properties.radius < 0){
+                            return L.circleMarker(latlng);  
+                        }else{
+                            return L.circle(latlng, feature.properties.radius, { color: feature.properties.color });
+                        // Crear un circle marker si la característica es un circle marker
+                        }
+                    } else if (feature.geometry.type === "Point") {
+                        // Crear un marcador estándar si la característica es un punto
+                        return L.marker(latlng);
+                    }
+                    return L.layerGroup();
+                }
+            }).bindTooltip(function (layer) {
+                    return layer.feature.properties.tooltipMessage;
+                }).bindPopup(function (layer) {
+                    return layer.feature.properties.clickMessage;
+                }).addTo(map);
+            }
+        }
         //var capaGeoJSON = L.geoJSON(datosGeoJSON).addTo(map);
         
         var pos = map.getBounds();
@@ -279,8 +443,7 @@
             }
         });
 
-
-            
+                  
 
         map.on('zoomstart', function () {
             map.setMaxBounds(null);
@@ -290,22 +453,40 @@
         map.on('zoomend', function () {
             map.setMaxBounds(imageBounds);
         });
+        abrirModal.addEventListener('click', function() {
+            modal.style.display = 'block';
+        });
+
+        cerrarModal.addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+
+        cerrarModal2.addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+
+        window.addEventListener('click', function(event) {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        });
     }
     );  
     function opcionClick(opcion) {
         var menuBtn = document.getElementById('menuBt');
         menuBtn.textContent = opcion;
     }
+    
 </script>
 <div style = "float: right;right: 0%; width:25%;height: 100%;">
    
     <!-- <button class="btn btn-primary js-tooltip" onclick="w3_open()"></button> -->
     <div style="top:1%;position: relative;height: 7%; padding: 2%;">   
         <div  class="menu" style="z-index:1;width: 100%">
-            <button id = "menuBt" class="btn btn-outline-dark js-tooltip menu-btn" style="width: 100%;">Placas Virtuales</button>
-            <ul id="menuList" class="menu-list">
-              <li><a href="#" id= 'placas_btn' onclick="opcionClick('Placas Virtuales')">Placas Virtuales</a></li>
-              <li><a href="#" id= 'catalogo_btn' onclick="opcionClick('Catalogo')">Catalogo</a></li>
+            <button id = "menuBt"  class="btn btn-outline-dark js-tooltip menu-btn" style="width: 100%;"></button>
+            <ul id="menuList"  class="menu-list">
+              <li><a href="#" id= 'placas_btn' onclick="opcionClick('Láminas Virtuales')">Láminas Virtuales</a></li>
+              <li><a href="#" id= 'catalogo_btn' onclick="opcionClick('Catalogo')">Catálogo</a></li>
               <li><a href="#" id= 'colaboradores_btn' onclick="opcionClick('Colaboradores')">Colaboradores</a></li>
               <!-- Agrega más opciones de menú según tus necesidades -->
             </ul>
@@ -318,9 +499,12 @@
     <div style="top:1%;position: relative; float: left;left:2%;padding: 2%; box-shadow: 1px 1px 3px rgb(100, 99, 99);border-radius:10px;background-color:rgb(255, 255, 255);width: 96%">
                         
                                 
-        <div  style=" width:100%;float: left;">
-            <input type="text" id ="buscarDato" class="form-control" placeholder="Buscar ..." name ="buscar" value="">
-            <button class="btn btn-primary js-tooltip" id ="btn_buscar" type="submit" onclick="location.href='#'">Buscar</button>
+        <div  style="display: flex; width:100%;">
+            <input style="display: inline-block;width: 90%" type="text" id ="buscarDato" class="form-control input-busqueda" placeholder="Buscar ..." name ="buscar" value="">
+            
+            <button id ="btn_buscar" class="btn btn-outline-dark  js-tooltip boton-busqueda">
+                <i class="material-icons">search</i>
+            </button>
         </div>
             
             
@@ -333,19 +517,59 @@
      <button style=" position: relative;" class="btn btn-outline-dark btn-block js-tooltip" type="submit" onclick="location.href='{% url 'project-list' %}'">Retroceder</button>
     </div>
 </div>
-
+<div id="miModal" class="modal">
+    <div class="modal-contenido">
+    <span class="cerrar" id="cerrarModal">&times;</span>
+    {%if optionNum == 1%}
+        <h2>Editar {{mapSlide.name}}</h2>
+    {%else%}
+        <h2>Nueva Lámina Virtual</h2>
+    {%endif%}
+    <form method="POST" > 
+        {% csrf_token %}
+        {{ form.as_p }}
+        <!-- Otros campos de formulario... -->
+        {%if optionNum == 1%}
+            <input id="slide" type="hidden" name="slide" value='{{mapSlide.slide.id}}'>
+            <div style="position: relative; left: 2%;" class="botones">
+                <button type="submit" class="boton-enviar btn-primary">Guardar</button>
+        {%else%}
+            <input id="slide" type="hidden" name="slide" value='{{mapSlide.id}}'>
+            <div style="position: relative; left: 2%;" class="botones">
+                <button type="submit" class="boton-enviar btn-primary">crear</button>
+        {%endif%}
+            
+                <button type="button" class="boton-cerrar btn-danger " id="cerrarModal2">Cancelar</button>
+            </div>
+    </form>
+    </div>
+</div>
 
     
         {%if mapSlide%}
         <div style="position: relative;background-color:rgba(0, 0, 0, 0);left: 0%;top:2%;width:73%;height: 68%">
-            <div id="map" style="position: relative;box-shadow: 1px 1px 10px rgb(100, 99, 99);background-color:rgb(0, 0, 0);left: 0%;top:0%;width:100%;height: 100%"></div>   
+            <div id="map" style="z-index: 0;position: relative;box-shadow: 1px 1px 10px rgb(100, 99, 99);background-color:rgb(0, 0, 0);left: 0%;top:0%;width:100%;height: 100%"></div>   
         </div>     
-        <div style="padding:1%; box-shadow: 1px 1px 10px rgb(100, 99, 99);border-radius:10px;background: rgb(255, 255, 255);position: relative;top: 5%;width: 73%;height: 24%">
-            <!-- <h2>{{mapSlide.name}}</h2>
-            <h3>{{mapSlide.description}}</h3> -->
-            <form method="POST" >
+        <div style="padding:1%; box-shadow: 1px 1px 10px rgb(100, 99, 99);border-radius:10px;background: rgb(255, 255, 255);position: relative;top: 4%;width: 73%;height: 26%">
+            
+            <div style="padding-right:1%;position:relative;width: 83%;height:100%;float: left;">
+                {%if optionNum == 1%}
+                <h2 style="text-align: center;">{{mapSlide.name}}</h2>
+                {%else%}
+                <h2 style="text-align: center;">{{mapSlide.name}} <span style="font-size: 15px;color: rgb(0, 100, 0);">(Catálogo)</span></h2>
+                {%endif%}
+                <hr>
+                <div style="position: relative; overflow-y: scroll; height: 60%; width: 100%;">
+
+                    <h2>Descripción</h2>
+                    <div style="border-radius: 10px; padding: 1%; background-color: rgb(241, 241, 241);">
+                        {{mapSlide.description}}
+                    </div>
+                </div>
+            
+            <!-- <form method="POST" >
                     
-                <div style="padding: 1%;float: left;width: 80%;height: 100%;">
+                <div style="padding: 1%;width: 100%;height: 100%;">
                     {% csrf_token %}
                     {%if optionNum == 1%}
                     <input id="slide" type="hidden" name="slide" value='{{mapSlide.slide.id}}'>
@@ -358,36 +582,93 @@
                   </div>    
                 </div>
          
-        </form>
-            <button class="btn btn-outline-info js-tooltip" type="submit" onclick="location.href='#'">Guardar cambios</button>
-            <button class="btn btn-outline-info js-tooltip" type="submit" onclick="location.href='{{ mapSlide.get_absolute_url }}'">Detalles</button>
-            <button class="btn btn-outline-danger js-tooltip" type="submit" onclick="location.href='/deleteProjectSlide/{{mapSlide.id}}'">Eliminar</button>
+            </form> -->
         </div>
+        <div  style="width: 17%;overflow-y: scroll;padding-top: 1%;height: 100%;position: relative;float: left;">
+            
+            {%if optionNum == 1%}
+                <button style="width: 100%;" class="btn btn-outline-dark js-tooltip" type="submit" onclick="location.href='/projectDetail/{{project.id}}/1/0'"><i class="material-icons">home</i></button>
+                <div style="height: 3%;width: 100%;position: relative;float: left;"></div>
+                <button style="width: 100%;" class="btn btn-outline-dark js-tooltip" type="submit" onclick="location.href='{{ mapSlide.get_absolute_url }}'">Detalles</button>
+                <div style="height: 3%;width: 100%;position: relative;float: left;"></div>
+                <button id ="abrirModal" style="width: 100%;" class="btn btn-outline-dark js-tooltip" type="submit" onclick="location.href='#'">Editar Lámina</button> 
+                <div style="height: 3%;width: 100%;position: relative;float: left;"></div>
+                <button style="width: 100%;" class="btn btn-outline-danger js-tooltip" type="submit" onclick="location.href='/deleteProjectSlide/{{mapSlide.id}}'">Eliminar</button>
+            
+            {%else%}
+                
+                <button style="width: 85%;" class="btn btn-outline-dark js-tooltip" type="submit" onclick="location.href='/projectDetail/{{project.id}}/1/0'"><i class="material-icons">home</i></button>
+                <div style="height: 4%;width: 100%;position: relative;float: left;"></div>
+                <!-- <button style="width: 80%;" class="btn btn-info js-tooltip" type="submit" onclick="location.href='{{ mapSlide.get_absolute_url }}'">Crear Lámina</button> -->
+                <button id ="abrirModal" style="padding: 6%;width: 85%;" class="btn btn-outline-info js-tooltip" type="submit" onclick="location.href='#'"><i class="material-icons">biotech</i><h5>Crear Lámina </h5></button> 
+            {%endif%}
+
+            </div>
+        </div>
+        
         {%else%}
-            <div  style="padding-left: 8%;padding-right: 8%;overflow-y: scroll;position: relative;box-shadow: 1px 1px 10px rgb(100, 99, 99);background-color:rgb(255, 254, 254);left: 0%;top:2%;width:73%;height: 92%">
-                <div style="position:relative;top:3%;width: 100%;padding: 2%;">
+            <div  style="padding-left: 5%;padding-right: 5%;overflow-y: scroll;position: relative;box-shadow: 1px 1px 10px rgb(100, 99, 99);background-color:rgb(255, 254, 254);left: 0%;top:2%;width:73%;height: 92%">
+                <div style="position:relative;padding: 2%;top:3%;width: 100%;">
                     <h1 style="text-align: center;">{{project.name}}</h1>
+                    <!-- <hr>     -->
                 </div>
-                <div style="position:relative;top:2%;width: 100%;padding: 2%;">
+                <hr > 
+                
+               
+                <!-- <div style="position:relative;float: left;width: 50%;">
+                    <h3 style="text-align: center;">Placas Virtuales:<a style="color:blue;"> {{numPlacas}}</a> </h3>
+                </div> -->
+                <!-- <div style="position:relative;top:2%;width: 100%;">
+                    <hr> 
+                </div> -->
+                <!-- <div style="position:relative;top:2%;width: 100%;padding: 2%;">
+                    <h2>Creador del poryecto</h2>
+                </div> -->
+                <h4 style="text-align: center;">Datos del propietario</h4>
+                <div style="position:relative;float: left;width:50%;padding: 2%;">
+                    
+                    <table>
+                        <tr>
+                            <td ><h3 >Nombre: </h3></td>
+                            <td ><h4 >{{project.user.first_name}} {{project.user.last_name}}</h4></td>
+                        </tr>
+                        <tr>
+                            <td ><h3 >Usuario: </h3> </td>
+                            <td ><h4 >{{project.user}} </h4></td>
+                        </tr>
+                        <tr>
+                            <td ><h3>Correo: </h3> </td>
+                                <td ><h5 >{{project.user.email}}</h5></td>
+                        </tr>
+                    </table>
+                </div>
+                <hr style="position:relative;float: left;width: 100%;"> 
+                <div style="position:relative;float: left;width: 100%;">
+                    <div style="position:relative;float: left;width: 25%;">
+                        <h4 style="text-align: center;">Participantes: </h4> 
+                    </div>
+                    <div style="position:relative;float: left;width: 25%;">
+                        <h4 style="text-align: center;"><a style="color:blue;"> {{numUser}} </a> </h4>
+                    </div>
+                    <div style="position:relative;float: left;width: 25%;">
+                        <h4 style="text-align: center;">Láminas Virtuales: </h3> 
+                    </div>
+                    <div style="position:relative;float: left;width: 25%;">
+                        <h4 style="text-align: center;"><a style="color:blue;"> {{numPlacas}} </a> </h4>
+                        
+                    </div>
+                </div>
+                <hr style="position:relative;float: left;width: 100%;"> 
+                <div style="position:relative;float: left;top:2%;width: 100%;padding: 2%;">
                     <h2>Descripción</h2>
                 </div>
-                <div style="position:relative;top:2%;width: 100%;padding: 2%;">
+                
+                <div style="position:relative;float: left;top:2%;border-radius: 10px;width: 100%;padding: 2%;background-color: rgb(241, 241, 241);">
                     <h3 style="text-align: center;">{{project.description}}</h3>
                 </div>
-                <div style="position:relative;top:2%;width: 100%;padding: 2%;">
-                    <h2>Creador del porjecto</h2>
-                </div>
-                <div style="position:relative;width: 100%;padding: 2%;">
-                    <h3 style="text-align: center;">Nombre: {{project.user.first_name}} {{project.user.last_name}}</h3>
-                    <h4 style="text-align: center;">Usuario: {{project.user}}</h4>
-                    <h4 style="text-align: center;">Correo: {{project.user.email}}</h4>
-                </div>
-                <div style="position:relative;float: left;width: 50%;padding: 2%;">
-                    <h3 style="text-align: center;">Participantes: <a style="color:blue;"> {{numUser}} </a></h3>
-                </div>
-                <div style="position:relative;float: left;width: 50%;padding: 2%;">
-                    <h3 style="text-align: center;">Placas Virtuales:<a style="color:blue;"> {{numPlacas}}</a> </h3>
-                </div>
+                
+                
+                
             </div>   
         {%endif%}
     

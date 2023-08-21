@@ -1,15 +1,174 @@
-<!-- se extiende la plantilla genérica-->
 {% extends "generica.html" %}
 {% block content %}
+<style>
+#custom-button-container {
+    position: absolute;
+    bottom: 365px;
+    right: 12px;
+    z-index: 1000;
+}
+
+#custom-button-container2 {
+    position: absolute;
+    bottom: 400px;
+    right: 12px;
+    z-index: 1000;
+}
+
+#custom-button {
+    display: block;
+    width: 30px;
+    height: 30px; /* Agrega la ruta de tu icono personalizado */
+    background-size: 26px 26px;
+    background-repeat: no-repeat;
+    background-color: white;
+    border: 1px solid #ddd;
+    color: #4d4d4d;
+}
+
+#custom-button:hover {
+    background-color: rgb(243, 243, 243);
+    cursor: pointer;
+}
+
+#colorPicker:hover {
+    cursor: pointer;
+}
+
+.titulo-y-botones {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+.elemento {
+    pointer-events: auto;
+}
+.botones-opciones {
+    display: flex;
+    position: absolute;
+    right: 2%;
+}
+
+.btn-opcion {
+    display: inline-block;
+    border-radius: 10px;
+    color: #333;
+    text-decoration: none;
+    /* transition: background-color 0.3s, color 0.3s; */
+}
+
+.btn-opcion2 {
+    display: inline-block;
+    border-radius: 10px;
+    color: #ffffff;
+    text-decoration: none;
+    /* transition: background-color 0.3s, color 0.3s; */
+}
+.btn-opcion2:hover {
+    color: #f5b01b;
+}
+
+.btn-opcion:hover {
+    color: #f5b01b;
+}
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.4);
+}
+
+.modal-contenido {
+  background-color: #fff;
+  margin: 10% auto;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  width: 60%;
+}
+
+.cerrar {
+  color: #aaaaaa;
+  float: right;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.boton-cerrar {
+  padding: 8px 16px;
+  margin-right: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.boton-enviar {
+  padding: 8px 16px;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+</style>
 <div style="padding-left: 2%;padding-right: 1%;width: 100%;height: 100%;">  
 <script type="text/javascript">
-    
+    var geojson_list = {{ geojson_list|safe }};
     $(document).ready(function() {
-           
-        var i = "{{notes.projectSlide.slide.path}}";
-        var h = "{{notes.projectSlide.slide.zoomI}}";
-        var j = "{{notes.projectSlide.slide.zoomM}}";
-        var datosGeoJSON = JSON.parse('{% autoescape off %}{{ notes.geojson_data|escapejs }}{% endautoescape %}');
+         
+        var abrirModal = document.getElementById('abrirModal');
+        var modal = document.getElementById('miModal');
+        var modal2 = document.getElementById('miModal2');
+        var cerrarModal = document.getElementById('cerrarModal');
+        var cerrarModal2 = document.getElementById('cerrarModal2');
+        var cerrarModal3 = document.getElementById('cerrarModal3');
+        var cerrarModal4 = document.getElementById('cerrarModal4');
+        var contenedor = document.getElementById('menuPrincipal');
+        var save = document.getElementById('custom-button');
+
+        contenedor.addEventListener('mouseenter', () => {
+            map.dragging.enable(); // Desactiva la interacción de arrastre del mapa
+            map.scrollWheelZoom.enable(); // Desactiva el zoom con la rueda del ratón
+        });
+
+        abrirModal.addEventListener('click', function() {
+            modal.style.display = 'block';
+        });
+
+        cerrarModal.addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+
+        cerrarModal2.addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+        cerrarModal3.addEventListener('click', function() {
+            modal2.style.display = 'none';
+        });
+
+        cerrarModal4.addEventListener('click', function() {
+            modal2.style.display = 'none';
+        });
+
+        window.addEventListener('click', function(event) {
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+        });
+
+        function cerrar(){
+            modal2.style.display = 'none';
+        };
+
+        var i = "{{projectSlide.slide.path}}";
+        var h = "{{projectSlide.slide.zoomI}}";
+        var j = "{{projectSlide.slide.zoomM}}";
+
+
+        //var datosGeoJSON = JSON.parse('{% autoescape off %}{{ notes.geojson_data|escapejs }}{% endautoescape %}');
 
         //window.alert(datosGeoJSON);
 
@@ -22,16 +181,254 @@
         
         var map = L.map('map', {
             center: [0,0],
-            zoom: h
+            zoom: h,
+            animate: true
         });
+
+        var customZoomControl = L.control.zoom({
+            position: 'bottomright'
+        }).addTo(map);
+
+        var drawnItems = new L.FeatureGroup();
+        map.addLayer(drawnItems);
+
+        L.drawLocal.draw.toolbar.actions.title = 'Cancelar dibujo';
+        L.drawLocal.draw.toolbar.actions.text = 'Cancelar';
+        L.drawLocal.draw.toolbar.undo.title = 'Deshacer último punto dibujado';
+        L.drawLocal.draw.toolbar.undo.text = 'Deshacer';
+        L.drawLocal.draw.toolbar.finish.title = 'Terminar dibujo';
+        L.drawLocal.draw.toolbar.finish.text = 'Terminar';
+
+        L.drawLocal.draw.handlers.circle = {
+            tooltip: {
+                start: 'Haz clic y arrastra para dibujar un círculo.'
+            },
+            radius: 'Radio'
+        };
+        L.drawLocal.draw.toolbar.buttons.circle = 'Dibujar un círculo';
+
+        L.drawLocal.draw.handlers.marker = {
+            tooltip: {
+                start: 'Haz clic en el mapa para colocar el marcador.'
+            }
+        };
+        L.drawLocal.draw.toolbar.buttons.marker = 'Colocar un marcador';
+
+        L.drawLocal.draw.handlers.polygon = {
+            tooltip: {
+                start: 'Haz clic para comenzar a dibujar el polígono.',
+                cont: 'Haz clic para continuar dibujando el polígono.',
+                end: 'Haz clic en el primer punto para cerrar este polígono.'
+            },
+        };
+        L.drawLocal.draw.toolbar.buttons.polygon = 'Dibujar un poligono';
+
+        L.drawLocal.draw.handlers.polyline = {
+            error: '<strong>Error:</strong> Las aristas no deben cruzarse.',
+            tooltip: {
+                start: 'Haz clic para comenzar a dibujar la línea.',
+                cont: 'Haz clic para continuar dibujando la línea.',
+                end: 'Haz clic en el último punto para terminar.'
+            },
+        };
+        L.drawLocal.draw.toolbar.buttons.polyline = 'Dibujar una linea';
+
+        L.drawLocal.draw.handlers.rectangle = {
+            tooltip: {
+                start: 'Haz clic y arrastra para dibujar un rectángulo.'
+            },
+        };
+        L.drawLocal.draw.toolbar.buttons.rectangle = 'Dibujar un rectangulo';
+
+        L.drawLocal.draw.handlers.circlemarker = {
+            tooltip: {
+                start: 'Haz clic para colocar un marcador circular.'
+            },
+        };
+        L.drawLocal.draw.toolbar.buttons.circlemarker = 'Colocar un marcador circular';
+
+
+        L.drawLocal.edit.handlers.edit.tooltip.text = 'Arrastra los manejadores o los marcadores para editar las geometrías.';
+        L.drawLocal.edit.handlers.remove.tooltip.text = 'Haz clic en una geometría para eliminarla.';
+        L.drawLocal.edit.toolbar.actions.save.text = 'Guardar cambios';
+        L.drawLocal.edit.toolbar.actions.cancel.text = 'Cancelar edición';
+        L.drawLocal.edit.toolbar.actions.clearAll.text = 'Borrar todo';
+        L.drawLocal.edit.toolbar.buttons.edit = 'Editar';
+        L.drawLocal.edit.toolbar.buttons.remove = 'Eliminar';
+        L.drawLocal.edit.toolbar.buttons.editDisabled = 'No hay entidad para editar.';
+        L.drawLocal.edit.toolbar.buttons.removeDisabled = 'No hay entidad para eliminar.';
+
+        var drawControl = new L.Control.Draw({
+            position: 'bottomright',  // Posición en la esquina inferior derecha
+            edit: {
+                featureGroup: drawnItems
+                
+            },
+            draw: {
+                polygon: true,
+                polyline: true,
+                rectangle: true,
+                circle: true,
+                marker: true,
+                circlemarker: true,
+                
+            }
+        });
+        map.addControl(drawControl);
+        function setupEditing(layer) {
+            if (layer instanceof L.Path) { // Verificar si la capa es una línea o polígono
+                layer.options.editing = {
+                    edit: true,
+                    remove: true
+                };
+
+                
+            }
+        }
+
+        if('{{ note.geojson_data}}'!= 'None'){
+            var noteDraw = JSON.parse('{% autoescape off %}{{ note.geojson_data|escapejs }}{% endautoescape %}');
+            for (var i = 0; i < noteDraw.features.length; i++) {
+                
+                L.geoJSON(noteDraw.features[i], {
+                    onEachFeature: function (feature, layer) {
+                        drawnItems.addLayer(layer);
+                        setupEditing(layer);
+                    },
+                    style: function (feature) {
+                        return { color: feature.properties.color };
+                    },
+                    pointToLayer: function (feature, latlng) {
+                        
+                        if (feature.geometry.type === "Point" && feature.properties.radius) {
+                            if (feature.properties.radius < 0){
+                                return L.circleMarker(latlng);  
+                            }else{
+                                return L.circle(latlng, feature.properties.radius, { color: feature.properties.color });
+                            // Crear un circle marker si la característica es un circle marker
+                            }
+                        } else if (feature.geometry.type === "Point") {
+                            // Crear un marcador estándar si la característica es un punto
+                            return L.marker(latlng);
+                        }
+                        return L.layerGroup();
+                    }
+                }).addTo(map);
+                console.log(noteDraw.features[i]);
+            }
+        }
+        
+        save.addEventListener('click', function() {
+            var geojsonFeatures = [];
+            drawnItems.eachLayer(function(layer) {
+                var feature = {
+                    type: "Feature",
+                    geometry: layer.toGeoJSON().geometry,
+                    properties: {
+                        color: layer.options.color || "#3388ff", 
+                        tooltipMessage: "{{note.name}}",
+                        clickMessage: "{{note.description}}"
+                    }
+                };
+                
+                if (layer instanceof L.CircleMarker && !(layer instanceof L.Circle)) {
+                    feature.geometry.type = "Point";
+                    feature.properties.radius = -1;
+                } else if (layer instanceof L.Circle) {
+                    feature.geometry.type = "Point";
+                    feature.properties.radius = layer.getRadius();
+                }
+                
+                geojsonFeatures.push(feature);
+            });
+
+            var geojson = {
+                type: "FeatureCollection",
+                features: geojsonFeatures
+            };
+
+            document.getElementById("geojson_data").value = JSON.stringify(geojson); 
+            modal2.style.display = 'block';
+        });
+        // var geojson_list = {{ geojson_list }};
+
+        console.log(geojson_list[0]);
+        for (var i = 0; i < geojson_list.length; i++) {
+            var geojson = JSON.parse(geojson_list[i].geojson);
+            console.log(geojson);
+            L.geoJSON(geojson, {
+                style: function (feature) {
+                    return { color: feature.properties.color };
+                },
+                pointToLayer: function (feature, latlng) {
+                    
+                    if (feature.geometry.type === "Point" && feature.properties.radius) {
+                        if (feature.properties.radius < 0){
+                            return L.circleMarker(latlng);  
+                        }else{
+                            return L.circle(latlng, feature.properties.radius, { color: feature.properties.color });
+                        // Crear un circle marker si la característica es un circle marker
+                        }
+                    } else if (feature.geometry.type === "Point") {
+                        // Crear un marcador estándar si la característica es un punto
+                        return L.marker(latlng);
+                    }
+                    return L.layerGroup();
+                }
+            }).bindTooltip(function (layer) {
+                    return layer.feature.properties.tooltipMessage;
+                }).addTo(map);
+        }
+        
+        var colorPicker = document.getElementById('colorPicker');
+
+        colorPicker.value = "#3388ff";
+        
+
+        colorPicker.addEventListener('change', function () {
+            var selectedColor = colorPicker.value;
+            // Configurar el color en las opciones de dibujo
+            drawControl.setDrawingOptions({
+                polyline: {
+                shapeOptions: {
+                    color: selectedColor
+                }
+                },
+                rectangle: {
+                shapeOptions: {
+                    color: selectedColor
+                }
+                },
+                polygon: {
+                shapeOptions: {
+                    color: selectedColor
+                }
+                },
+                circle: {
+                shapeOptions: {
+                    color: selectedColor
+                }
+                }
+            });
+        });
+
+        map.on(L.Draw.Event.CREATED, function (e) {
+            var layer = e.layer;
+            console.log(layer.editing);
+            drawnItems.addLayer(layer);
+        });
+
+        // Después de agregar el control de zoom personalizado,
+        // puedes eliminar el control de zoom por defecto.
+        map.removeControl(map.zoomControl);
 
         var layer =  L.tileLayer(slide_url_format, {
             minZoom:2,
             noWrap: true,
-            keepBuffer:3,
+            keepBuffer:8,
             maxZoom:j
         }).addTo(map);
-        
+
         var pos = map.getBounds();
 
         var pos11,ps12,pos21,pos22
@@ -42,8 +439,25 @@
             .openOn(map);
         
         }   
-        
-        var geojsonLayer = L.geoJSON(datosGeoJSON).addTo(map);
+        var expandBtn = document.getElementById('botonDesplegar');
+        var notasMenu = document.getElementById('notasMenu');
+        let isSelected = false;
+
+        expandBtn.addEventListener('click', function () {
+            isSelected = !isSelected;
+            if (isSelected) {
+                expandBtn.textContent = 'expand_more';
+            } else {
+                expandBtn.textContent = 'expand_less';
+            }
+            if (notasMenu.style.display === 'none') {
+                notasMenu.style.display = 'block';
+            } else {
+                notasMenu.style.display = 'none';
+            }
+        });
+
+        //var geojsonLayer = L.geoJSON(datosGeoJSON).addTo(map);
 
         $('#MyButton').click(function(e){
            // map.fitBounds(pos);
@@ -65,73 +479,137 @@
         map.on('zoomend', function () {
             map.setMaxBounds(imageBounds);
         });
-
-        function eliminarNota(id) {
-            // Realizar la solicitud AJAX para eliminar la nota
-            $.ajax({
-                url: `/delete/${id}`,
-                type: 'DELETE',
-                success: function () {
-                // Si la eliminación fue exitosa, actualizar la lista
-                actualizarLista();
-                },
-                error: function (error) {
-                // Manejar errores si es necesario
-                console.log(error);
-                }
-            });
-        }
-
-            function actualizarLista() {
-            // Realizar la solicitud AJAX para obtener la lista actualizada
-            $.ajax({
-                url: '/ruta_para_obtener_lista_actualizada/',  // Reemplaza por la URL de tu vista en Django
-                type: 'GET',
-                success: function (data) {
-                // Reemplazar el contenido de la lista con los datos actualizados
-                $('#id_de_lista').html(data);
-                },
-                error: function (error) {
-                // Manejar errores si es necesario
-                console.log(error);
-                }
-            });
-        }
-
     });  
     
 </script>
-<div id="map" style="position: absolute;background-color:rgb(0, 0, 0);left: 2%;top:8%;z-index:0;width:96%;height: 90%"></div> 
-<div style = "position: absolute; right: 2%;top: 7%;z-index:1; width:22%;">
-    <!-- <button class="btn btn-primary js-tooltip" onclick="w3_open()"></button> -->
-    <div style="position: relative;height: 7%; padding: 2%; width: 100%;">      
-      <!-- <h3 style="text-align: center;">Notas:</h3> -->
-    </div>
-<div style="position: relative; overflow-y: scroll;height: 75%; width: 100%;">
-      {%load static%} 
-      {%for note in apuntes%}
-      
-      <div style="padding: 2%;position: relative; float: left;left: 2%; width: 96%">
-      <div style="padding: 2%;box-shadow: 1px 1px 3px rgb(100, 99, 99); z-index:1;border-radius:10px;background-color:rgba(255, 255, 255, 0.8);width: 100%">
-        <h3 style="text-align: center;">{{note.name}}</h3> 
-      </li>
-      <button class="btn btn-outline-info js-tooltip" type="submit" onclick="location.href='{{ note.get_absolute_url }}'">Ver</button>
-      
-      <button class="btn btn-outline-danger js-tooltip" type="submit" onclick="eliminarNota({{ note.id }})">Eliminar</button>
-      <!-- <button class="btn btn-outline-danger js-tooltip" type="submit" onclick="location.href='/delete/{{note.id}}'">Eliminar</button> -->
-          
-        </div>
-    </div>
-    <div style="float:left;height:1%;width:100%"></div>
-        {%endfor%}
-    </div>
+
+<div id="map" style="position: absolute;background-color:rgb(0, 0, 0);left: 2%;top:8%;z-index:0;width:96%;height: 90%">
+
     
-    <div style = "padding-top:5%;padding-right:15%;padding-left:15%; width:100%">
-    <button style=" position: relative;" class="btn btn-outline-dark  btn-block js-tooltip" type="submit" onclick="location.href='{% url 'project-list' %}'">Retroceder</button>
+    <div id="custom-button-container">
+        <a id="custom-button" style="padding: 5%;" class="leaflet-draw-draw-polyline material-icons" href="#" title="Guardar cambios">save</a>
+    </div>
+    <div id="custom-button-container2">
+        <input type="color" style="width: 30px;height: 30px;" id="colorPicker" value="#3388ff">
+    </div>
+</div> 
+<div id="menuPrincipal"style = "pointer-events: none;position: absolute; left: 2%;top: 7%;z-index:1; width:22%; height: 93%;">
+    <!-- <button class="btn btn-primary js-tooltip" onclick="w3_open()"></button> -->
+ 
+<!-- <div style="position: relative; float: left;left: 2%; top:2%;width: 96%">
+    <div style="padding: 1%;box-shadow: 1px 1px 3px rgb(100, 99, 99); z-index:1;border-radius:10px 10px 0 0;background-color:rgb(255, 255, 255);width: 100%">
+        <h3 style="text-align: center;">Anotaciones</h3> 
+        
+    </div>
+</div>
+<div style="float:left;height:3%;width:100%"></div> -->
+<div style="position: relative; float: left;top:2%;left: 2%; width: 96%">
+    <div class="elemento" style="padding-top: 2%; border-radius:10px ;z-index:1;background-color:rgba(51, 51, 51, 0.8);width: 100%">
+        
+     
+        
+        
+            <div class="titulo-y-botones">
+                <h4 style="text-align: center;color: #fff;width: 80%;">{{projectSlide.name}}</h4> 
+                <div class="botones-opciones">
+                    <a href="#" id="abrirModal" class="btn-opcion2 notaNueva"><i class="material-icons">note_add</i></a>
+                    <a href="#"  class="btn-opcion2"><i id="botonDesplegar" class="material-icons">expand_less</i></a>
+                </div>
+            </div> 
+                   
+               
     </div>
 </div>
 
-<div style="position: absolute;padding:1%; bottom:3%; right: 3%; z-index:2;padding: 1%;box-shadow: 1px 1px 10px rgb(100, 99, 99);border-radius:30px;background: rgb(255, 255, 255);width: 20%;height: 35%">
+<div id="miModal" class="modal elemento">
+    <div class="modal-contenido">
+    <span class="cerrar" id="cerrarModal">&times;</span>
+    <h2>Nueva Nota</h2>
+    <form method="POST" > 
+        {% csrf_token %}
+        {{ form.as_p }}
+        <!-- Otros campos de formulario... -->
+        <input type="hidden" name="option" value=0>
+        
+        <div style="position: relative; left: 2%;" class="botones">
+            <button type="submit" class="boton-enviar btn-primary">crear</button>
+            <button type="button" class="boton-cerrar btn-danger " id="cerrarModal2">Cancelar</button>
+        </div>
+    </form>
+    </div>
+</div>
+
+<div id="miModal2" class="modal elemento">
+    <div class="modal-contenido">
+    <span class="cerrar" id="cerrarModal3">&times;</span>
+    <h2>Guardar dibujo en {{note.name}}</h2>
+    <form method="POST" > 
+        {% csrf_token %}
+        <!-- Otros campos de formulario... -->
+        <input id="geojson_data" type="hidden" name="geojson_data" value="">
+        <input type="hidden" name="option" value="1">
+        Texto:
+        <input style="border: 1px solid #ccc;border-radius: 4px;width: 100%" id="name" type="text" name="name" value="{{note.name}}">
+        <div style="position: relative;height:25px;width:100%"></div>
+        Detalles de la nota:
+        
+        <textarea rows="4" maxlength="200" style="border: 1px solid #ccc;border-radius: 4px;width: 100%;height: 30%"id="description" type="text" name="description" value="{{note.description}}">{{note.description}}</textarea>
+            
+        <div style="position: relative;height:25px;width:100%"></div>
+        <div style="position: relative; left: 2%;top:2%" class="botones">
+            <button type="submit" class="boton-enviar btn-primary">Guardar cambios</button>
+            <button type="button" class="boton-cerrar btn-danger " id="cerrarModal4">Cancelar</button>
+        </div>
+    </form>
+    </div>
+</div>
+
+<div id="notasMenu" style="position: relative;top:2%; overflow-y: scroll;height: 85%; width: 100%;">
+    
+      {%load static%} 
+      {%for notes in apuntes%}
+    <div style="float:left;height:1%;width:100%"></div>
+    {%if notes.id == note.id%}
+    <div style="padding: 1%;position: relative; float: left;left: 8%; width: 90%">
+    <div class="elemento" style="padding: 2%;box-shadow: 1px 1px 3px rgb(100, 99, 99); z-index:1;border-radius:10px;background-color:rgba(197, 197, 197, 0.733);width: 100%">
+    
+    {%else%}
+    <div style="padding: 1%;position: relative; float: left;left: 2%; width: 90%">
+    <div class="elemento" style="padding: 2%;box-shadow: 1px 1px 3px rgb(100, 99, 99); z-index:1;border-radius:10px;background-color:rgba(255, 255, 255, 0.733);width: 100%">
+    {%endif%}
+    
+    <div class="titulo-y-botones">
+        <h4 style="width: 80%;">{{notes.name}}</h4> 
+        
+        <div class="botones-opciones">
+            {%if notes.show%}
+            <a href="/showNote/{{notes.id}}/{{notes.project.id}}" class="btn-opcion ver"><i class="material-icons">visibility</i></a>
+            {%else%}
+            <a href="/showNote/{{notes.id}}/{{notes.project.id}}" class="btn-opcion ver"><i class="material-icons">visibility_off</i></a>
+            {%endif%}
+            <a href="{{ notes.get_absolute_url }}" class="btn-opcion editar"><i class="material-icons">edit</i></a>
+            <a href="/delete/{{notes.id}}" class="btn-opcion borrar"><i class="material-icons">delete</i></a>
+        </div>
+    </div> 
+    
+    
+        </div>
+    </div>
+    
+    
+        {%endfor%}
+    </div>
+    
+    
+</div>
+<div style = "position: absolute; right: 3%;top:10%;padding: 0%;border-radius:10px; background-color:rgba(221, 220, 220, 0.8);width:10%">
+    <button style=" width: 100%;" class="btn btn-outline-dark  btn-block js-tooltip" type="submit" onclick="location.href='/projectDetail/{{projectSlide.project.id}}/0/0'">Retroceder</button>
+</div>
+<!-- <button id="colorPickerBtn">Elegir color</button>
+<div id="colorPickerMenu" style="display: none;">
+    <input type="color" id="colorPicker" value="#3388ff">
+  </div> -->
+<!-- <div style="position: absolute;padding:1%; bottom:3%; right: 3%; z-index:2;padding: 1%;box-shadow: 1px 1px 10px rgb(100, 99, 99);border-radius:30px;background: rgb(255, 255, 255);width: 20%;height: 35%">
     <h3 style="font-family: Georgia;color: rgb(0, 0, 0);text-align: center;">{{notes.name}}:</h3>  
 <div style="margin-left: 1%; border-radius:10px;background: rgb(238, 238, 238);padding:1%; overflow-y: scroll;position: relative;float: left; width: 98%;height: 83%">
 
@@ -140,15 +618,15 @@
 <div style="width: 100%;height: 5%;"></div>
 
     
-</div>
+</div> -->
 
-<div style="right: 2%;padding-left: 2.5% ;z-index:2; padding-top: 0.7% ;padding-right: 1% ;position: absolute;float: left;width: 20%;">   
+<!-- <div style="right: 2%;padding-left: 2.5% ;z-index:2; padding-top: 0.7% ;padding-right: 1% ;position: absolute;float: left;width: 20%;">   
     <button class="btn btn-outline-dark btn-block js-tooltip" onclick="location.href='{{ notes.projectSlide.get_absolute_url }}'" type="submit">Pantalla completa</button>
      
     <input id="MyButton" class="btn btn-outline-dark btn-block js-tooltip" type="button" value="Ir al cuadro" >            
     <button class="btn btn-outline-dark btn-block js-tooltip" onclick="location.href='{{ notes.projectSlide.get_absolute_url }}'" type="submit">Nueva nota</button>
     
-</div>   
+</div>    -->
 <!-- <div id="map" style="float: left;position: relative;background-color:rgb(0, 0, 0);left: 0%;top:2%;width:96%;height: 90%"></div>    -->
 
 

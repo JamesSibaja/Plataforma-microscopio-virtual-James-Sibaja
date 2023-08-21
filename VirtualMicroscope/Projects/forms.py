@@ -1,8 +1,17 @@
 from django.forms import ModelForm, Textarea, Form
 from django import forms
-from Projects.models import ProjectSlide, Notes, Project
+from Projects.models import ProjectSlide, Notes, Project, User
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.contrib import admin
+from django.contrib.auth.forms import UserChangeForm
+
+class CustomUserChangeForm(UserChangeForm):
+    
+
+    class Meta:
+        model = User  # Importa el modelo de usuario si aún no lo has hecho
+        fields = ( 'first_name', 'last_name','email', )
+        
 
 class ProjectForm(forms.ModelForm):
     class Meta:
@@ -10,10 +19,14 @@ class ProjectForm(forms.ModelForm):
         fields = '__all__'
         widgets = {
             'sharedUsers': FilteredSelectMultiple("sharedUsers", is_stacked=False),
+            'invitedUsers': FilteredSelectMultiple("invitedUsers", is_stacked=False),
         }
+
 
 class ProjectAdmin(admin.ModelAdmin):
     form = ProjectForm
+
+
 
 class SearchForm(forms.Form):
     titulo = forms.CharField()
@@ -26,7 +39,7 @@ class NoteForm(ModelForm):
     class Meta:
         model = Notes
         fields = ['project','name','description','xUnoPos','yUnoPos','xDosPos','yDosPos','geojson_data']
-        labels = {'name':'Titulo','description':'Texto'}
+        labels = {'name':'Texto','description':'Detalles Adicionales'}
         exclude = ['project','xUnoPos','yUnoPos','xDosPos','yDosPos','geojson_data']
         widgets = {
           'description': Textarea(attrs={'rows':3, 'cols':80}),
@@ -34,9 +47,9 @@ class NoteForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(NoteForm,self).__init__( *args, **kwargs)
         self.fields['name'].widget.attrs['class'] = 'form-control'
-        self.fields['name'].widget.attrs['placeholder'] = 'Titulo de la nota'
+        self.fields['name'].widget.attrs['placeholder'] = 'Contenido de la nota'
         self.fields['description'].widget.attrs['class'] = 'form-control'
-        self.fields['description'].widget.attrs['placeholder'] = 'Contenido de la nota'
+        self.fields['description'].widget.attrs['placeholder'] = 'Detalles adicionales de la nota'
 
 class ProjectForm(ModelForm):
     class Meta:

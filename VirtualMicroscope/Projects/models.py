@@ -12,6 +12,7 @@ class Project(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     sharedUsers = models.ManyToManyField(User, related_name='sharedUsers')
+    invitedUsers = models.ManyToManyField(User, related_name='invitedUsers')
 
     def __str__(self):
         return self.name
@@ -38,7 +39,9 @@ class Notes(models.Model):
     name = models.CharField(max_length=50)
     
     description = models.TextField(max_length=500)
-    geojson_data = models.TextField()
+    geojson_data = models.TextField(null=True, blank=True)
+    show = models.BooleanField()
+
     xUnoPos = models.FloatField()
     yUnoPos = models.FloatField()
     xDosPos = models.FloatField()
@@ -50,5 +53,5 @@ class Notes(models.Model):
         return self.name  
 
     def get_absolute_url(self):
-        return reverse('note-detail', args=[str(self.id)])
+        return reverse('note-detail', args=[str(self.id),str(self.project.id)])
     

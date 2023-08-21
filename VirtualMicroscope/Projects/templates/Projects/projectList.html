@@ -14,7 +14,7 @@
 <div style = "padding: 1%; box-shadow: 1px 1px 5px rgb(100, 99, 99);float: left;background-color:rgba(255, 255, 255, 0);right: 0%; width:20%;height: 100%;">
   <div style="width: 100%;height: 3%;"></div>
   <h2 style="font-family:arial; color: rgb(31, 62, 146);"><b>{{user.first_name}} {{user.last_name}}</b></h2>
-  <button class="btn btn-outline-dark js-tooltip" type="submit" onclick="location.href='{% url 'Logout' %}'">Perfil </button>
+  <button class="btn btn-outline-dark js-tooltip" type="submit" onclick="location.href='{% url 'edit_profile' %}'">Perfil </button>
   <button class="btn btn-outline-dark js-tooltip" type="submit" onclick="location.href='{% url 'Logout' %}'">Cerrar Sesión </button>
 
   <div style="width: 100%;height: 3%;"></div>
@@ -70,7 +70,7 @@
 <!-- <div style="width: 100%;height: 3%;"></div>
 <div style="padding: 1%;background-color: rgb(77, 76, 76);width: 100%;"></div> -->
 </div>
- <div style="position: relative;left: 2%; width: 75%;overflow-y: scroll;height: 100%;background-color: rgb(255, 255, 255);">
+ <div style="position: relative;left: 2%;padding-right: 2%; width: 75%;overflow-y: scroll;height: 100%;background-color: rgb(255, 255, 255);">
     
   
   <div style="position: relative; width: 100%; height: 7%">
@@ -121,12 +121,26 @@
                   <th></th> 
                   <th></th>
                 </tr>
+
+                {%for project in invite%}
+              
+                <tr style="background-color: rgb(104, 129, 158)">
+                  <th style=" padding: 15px">{{project.name}}  </th>
+                  <th>{{project.description}}</th>
+                  
+                  <th><button class="btn btn-info js-tooltip" type="submit" onclick="location.href='/newProjectUser/{{project.id}}/{{user.id}}'">Aceptar</button> </th> 
+                  <th> <button class="btn btn-danger js-tooltip" type="submit" onclick="location.href='/deleteProject/{{project.id}}'">Rechazar</button></th>
+                  <th><h4 style="color: rgb(255, 255, 255);">Invitación!</h4></th>
+                </tr>
+
+
+              {%endfor%}
               {%for project in project_list%}
               
                 <tr >
                   <th style=" padding: 15px">{{project.name}}  </th>
                   <th>{{project.description}}</th>
-                  <th><button class="btn btn-primary js-tooltip" type="submit" onclick="location.href='{{ project.get_absolute_url }}'">Abrir</button> </th> 
+                  <th><button class="btn btn-outline-primary js-tooltip" type="submit" onclick="location.href='{{ project.get_absolute_url }}'">Abrir</button> </th> 
                   <th> <button class="btn btn-outline-danger js-tooltip" type="submit" onclick="location.href='/deleteProject/{{project.id}}'">Eliminar</button></th>
                 </tr>
 
