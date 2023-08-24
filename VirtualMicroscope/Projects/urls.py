@@ -1,5 +1,4 @@
 from django.urls import path, re_path
-from django.conf.urls import url , include
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.conf.urls.static import static
@@ -9,6 +8,7 @@ urlpatterns = [
     path('project/',login_required(projects.as_view()),name='project-list'),
     path('project2/<int:slideId>',login_required(projects.as_view()),name='project-list-dos'),
     path('projectDetail/<int:pk>/<int:option>/<int:map>',login_required(projectDetail.as_view()),name='project-detail'),
+    path('projectProfileDetail/<int:pk>/<int:option>/<int:map>',login_required(projectProfileDetail.as_view()),name='project-profile-detail'),
     path('projectSlideDetail/<int:pk>/',login_required(projectSlideDetail.as_view()),name='project-slide-detail'),
     # path('projectDetail/<pk>/<int:sel>',login_required(projectDetail.as_view()),name='project-detail-2'),
     path('noteDetail/<int:pk>/<int:project_id>',login_required(noteDetail.as_view()),name='note-detail'),
@@ -24,5 +24,6 @@ urlpatterns = [
     path('datos_actualizados_catalogo/<int:project>/<str:buscar>', datos_actualizados_catalogo, name='datos_actualizados_catalogo'),
     path('datos_actualizados_placas/<int:project>/<str:buscar>', datos_actualizados_placas, name='datos_actualizados_placas'),
     path('datos_actualizados_colaboradores/<int:project>/<str:buscar>', datos_actualizados_colaboradores, name='datos_actualizados_colaboradores'),
+    path('datos_actualizados_chat/<int:project>/<str:buscar>', datos_actualizados_chat, name='datos_actualizados_chat'),
      path('edit_profile/', edit_profile, name='edit_profile'),
 ]

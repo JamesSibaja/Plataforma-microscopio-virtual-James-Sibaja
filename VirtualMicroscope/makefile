@@ -9,8 +9,11 @@ install:
 	sudo apt-get install python3.6
 	sudo apt install python3-pip
 	sudo apt install -y zip unzip
-	pip3 install Django==2.2.11
+	pip3 install Django==4.2.4
 	pip3 install jsonfield
+	pip3 install channels channels-redis
+	pip3 install asgiref
+	pip3 install daphne
 	pip3 install psycopg2-binary
 	sudo apt-get install libvips
 	sudo apt-get install libvips-dev

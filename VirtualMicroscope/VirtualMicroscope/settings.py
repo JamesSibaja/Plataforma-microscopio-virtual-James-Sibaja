@@ -22,25 +22,33 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'q8+a9-q&i&06rel!!wygym!8-j(@3@@*#g6m#c#wlw@v&-bf7v'
 
+
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*'] 
 
 
 # Application definition
 
+
+
 INSTALLED_APPS = [
+    'daphne',
+    'VMapp',
+    'Microscopio',
+    'Projects',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'VMapp',
-    'Microscopio',
-    'Projects',
+    
 ]
+
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -51,6 +59,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
 
 ROOT_URLCONF = 'VirtualMicroscope.urls'
 
@@ -71,6 +80,13 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'VirtualMicroscope.wsgi.application'
+ASGI_APPLICATION = 'VirtualMicroscope.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',  # Cambia esto por tu backend preferido
+    },
+}
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',

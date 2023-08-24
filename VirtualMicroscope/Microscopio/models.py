@@ -1,3 +1,5 @@
+import os
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'VirtualMicroscope.settings')
 from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse

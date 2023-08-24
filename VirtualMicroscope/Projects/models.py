@@ -1,9 +1,12 @@
-from django.db import models
+import os
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'VirtualMicroscope.settings')
 from Microscopio.models import Slide
-from django.contrib.auth.models import User
+
 from django.contrib.postgres.fields import ArrayField
 from django.urls import reverse
 from jsonfield import JSONField
+from django.db import models
+from django.contrib.auth.models import User
 
 # Create your models here.
 class Project(models.Model):
@@ -54,4 +57,13 @@ class Notes(models.Model):
 
     def get_absolute_url(self):
         return reverse('note-detail', args=[str(self.id),str(self.project.id)])
+    
+class Message(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    project = models.ForeignKey(Project,  on_delete=models.CASCADE)
+    contenido = models.TextField()
+    fecha_envio = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user}: {self.contenido}"
     

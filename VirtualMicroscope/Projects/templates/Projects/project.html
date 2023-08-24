@@ -3,6 +3,64 @@
 {% block content %}
 
 <style>
+.botonImagen {
+    /* transition: background-color 0.3s, filter 0.3s; */
+    display: block;
+    transition: transform 0.3s ease-in-out,border-radius 0.3s ease-in-out; 
+    cursor: pointer;
+    overflow: hidden;
+    position: relative;
+    border-radius:10px;
+}
+#message-form {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+}
+.text-overlay {
+    position: absolute;
+    bottom:  0%; /* Alinea el centro verticalmente */
+    right: 0%; /* Alinea el centro horizontalmente */
+    /* transform: translate(-50%, -50%); */
+    background-color: rgba(6, 34, 128, 0.5); /* Fondo semitransparente */
+    color: white;
+    padding: 2%;
+    border-radius: 10px 0px 0px 0px;
+}
+#message-input {
+    flex-grow: 1;
+    border-radius: 10px;
+    padding: 8px;
+    border: none;
+    outline: none;
+}
+
+#send-button {
+    border-radius: 50%;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: 10px;
+}
+.botonImagen img{/* Color oscuro al pasar el mouse */
+    transition:transform 0.3s ease-in-out,border-radius 0.3s ease-in-out; 
+}
+.botonImagen:hover {
+    border-radius: 0; 
+    color: #1f1f1f; 
+}
+
+.botonImagen:hover img{/* Color oscuro al pasar el mouse */
+     transform: scale(1.1);
+     filter: brightness(1.1);  
+}
+
+
+
+
 .barra-busqueda {
     display: flex;
     align-items: center;
@@ -29,6 +87,10 @@
     padding: 5px 10px;
     cursor: pointer;
     color: #1f1f1f;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: 10px;
 }
 .menu {
   position: relative;
@@ -126,6 +188,7 @@
 </style>
 <div style="padding-left: 2%;padding-right: 1%;width: 100%;height: 100%;">  
 <script type="text/javascript">
+    
     var geojson_list = {{ geojson_list|safe }};
     $(document).ready(function() {
         
@@ -137,8 +200,29 @@
         var abrirModal = document.getElementById('abrirModal');
         var modal = document.getElementById('miModal');
         var cerrarModal = document.getElementById('cerrarModal');
+        var chatInput = document.getElementById('chatInput');
         var cerrarModal2 = document.getElementById('cerrarModal2');
-      
+        
+        String.prototype.hashCode = function() {
+            var hash = 0;
+            for (var i = 0; i < this.length; i++) {
+                var character = this.charCodeAt(i);
+                hash = (hash << 5) - hash + character;
+            }
+            return hash;
+        };
+
+        function generarColorAleatorio(cadena) {
+            var semilla = cadena.hashCode().toString();  //
+            Math.seedrandom(semilla);  // Usa una librería de generación de números aleatorios con semilla
+
+            var r = Math.floor(Math.random() * 256);
+            var g = Math.floor(Math.random() * 256);
+            var b = Math.floor(Math.random() * 256);
+
+            return `rgb(${r}, ${g}, ${b})`;
+        }
+
         function actualizarDatos(url,option) {
 
             
@@ -186,23 +270,26 @@
             case 'catalogo':
                 if (data.name.length){ 
                     for (var i = 0; i < data.name.length; i++) {
-                        html += '<div style="position: relative; left: 2%;float: left;padding: 2%; box-shadow: 1px 1px 3px rgb(100, 99, 99);border-radius:10px;background-color:rgb(255, 255, 255);width: 96%">'+
-                                        '<h3 style="text-align: center;">'+data.name[i]+'</h3>'+
-                                        '<div style="width: 96%;padding-bottom: 50%;position: relative; float: left;left: 2%;">' +
-                                            '<img style="box-shadow: 1px 1px 10px rgb(100, 99, 99);border-radius:10px;object-fit: cover;width: 100%;height: 100%;position: absolute;" src="'+data.image[i]+'" >'+ 
-                                        '</div >' +
+                        html += '<div style="position: relative; left: 2%;float: left;padding: 1%;width: 96%">'+
+                                       
+                                        '<div class="botonImagen" style="box-shadow: 1px 1px 10px rgb(100, 99, 99);width: 96%;padding-bottom: 55%;position: relative; float: left;left: 2%;">' +
+                                            '<img  type="submit" onclick="location.href='+"'/projectDetail/{{project.id}}/2/"+data.id[i]+"'"+' "style="object-fit: cover;width: 100%;height: 100%;position: absolute;" src="'+data.image[i]+'" >'+ 
+                                            '<div class="text-overlay">'+
+                                                '<h4>'+data.name[i]+'</h4>'+
+                                            '</div> '+
+                                            '</div >' +
+                                            
                                             // '<div style="padding: 2%;width: 40%;overflow-y: scroll;position: absolute;height:60%;right:5%;">' +
                                             //     '<h5 style="ptext-align: center">'+data.description[i]+'</h5>'+
                                             // '</div >' +
-                                            '<div style="float:left;width:100%;padding:2%">'+
-                                                '<button style="width: 100%;"class="btn btn-outline-info js-tooltip" type="submit" onclick="location.href='+"'/projectDetail/{{project.id}}/2/"+data.id[i]+"'"+'"">Ver</button>\n'+
-                                                // '<button style="width: 49%;"class="btn btn-outline-primary js-tooltip" type="submit" onclick="location.href='+"'/projectDetail/{{project.id}}/2/"+data.id[i]+"'"+'"">Crear Lámina</button>'+
-                                            '</div >' +
-                                    '</div >' +
+                                                            // '<div style="float:left;width:100%;padding:2%">'+
+                                                            //     '<button style="width: 100%;"class="btn btn-outline-info js-tooltip" type="submit" onclick="location.href='+"'/projectDetail/{{project.id}}/2/"+data.id[i]+"'"+'"">Ver</button>\n'+
+                                                            //     // '<button style="width: 49%;"class="btn btn-outline-primary js-tooltip" type="submit" onclick="location.href='+"'/projectDetail/{{project.id}}/2/"+data.id[i]+"'"+'"">Crear Lámina</button>'+
+                                                            // '</div >' +
+                                    '</div >';
                                     // '<button class="btn btn-outline-info js-tooltip" type="submit"  onclick="location.href='+"'/projectSlideDetail/"+data.id[i]+"'"+'"">Detalles</button>\n'+
                                     // '<button class="btn btn-outline-danger js-tooltip" type="submit"  onclick="location.href='+"'/projectDetail/23/"+data.id[i]+"'"+'"">Eliminar</button>'+
-                                    
-                                    '<div style="float:left;height:1%;width:100%"></div>';                    
+                                                      
                     }
                 }else{
                     html += '<div style="position: relative; float: left;left: 2%; width: 90%;padding: 5%;">'+
@@ -210,89 +297,117 @@
                         '</div>';
                 }
                 break;
+            case 'chat':
+                if (data.meessages.length){ 
+                    for (var i = 0; i < data.meessages.length; i++) {
+                        if(data.userId[i] != '{{user_id}}'){
+                            html += '<div style="padding-bottom: 0%;position: relative; left: 4%;float: left;padding: 2%; box-shadow: 1px 1px 3px rgb(100, 99, 99);border-radius:0px 10px 10px 10px;background-color:rgb(255, 255, 255);width: 80%">'+
+                                    '<h5 style="color:'+generarColorAleatorio(data.name[i])+'">'+data.name[i]+':</h5>'+
+                                    data.meessages[i]+
+                                    '<p style="font-size: 12px;color:rgb(100,100,100);text-align: right; ">'+data.date[i]+'</p>'+
+                                    '</div >' +
+                                    // '<button class="btn btn-outline-info js-tooltip" type="submit"  onclick="location.href='+"'/projectSlideDetail/"+data.id[i]+"'"+'"">Detalles</button>\n'+
+                                    // '<button class="btn btn-outline-danger js-tooltip" type="submit"  onclick="location.href='+"'/projectDetail/23/"+data.id[i]+"'"+'"">Eliminar</button>'+
+                                    
+                                    '<div style="float:left;height:1%;width:100%"></div>';                    
+                        }else{
+                            html += '<div style="position: relative; right: 4%;float: right;padding: 2%; box-shadow: 1px 1px 3px rgb(100, 99, 99);border-radius:10px 0px 10px 10px;background-color:rgb(240, 255, 240);width: 80%">'+
+                                    
+                                    data.meessages[i]+
+                                    '<p style="font-size: 12px;color:rgb(100,100,100);text-align: right; ">'+data.date[i]+'</p>'+
+                                    '</div >' +
+                                    // '<button class="btn btn-outline-info js-tooltip" type="submit"  onclick="location.href='+"'/projectSlideDetail/"+data.id[i]+"'"+'"">Detalles</button>\n'+
+                                    // '<button class="btn btn-outline-danger js-tooltip" type="submit"  onclick="location.href='+"'/projectDetail/23/"+data.id[i]+"'"+'"">Eliminar</button>'+
+                                    
+                                    '<div style="float:left;height:1%;width:100%"></div>'; 
+
+                        }
+                    }
+                    
+                }else{
+                    html += '<div style="position: relative; float: left;left: 2%; width: 90%;padding: 5%;">'+
+                        '<h4> No se encontraron mensajes relacionados</h4>'+
+                        '</div>';
+                }
+                    
+                break;
             default:
-                html += '<div style="height:50%; overflow-y: scroll;">';
-                if (data.nameS){
-                    for (var i = 0; i < data.nameS.length; i++) {
+                if (data.name){
+                    for (var i = 0; i < data.name.length; i++) {
                         html += '<div style="position: relative; float: left;left: 2%; width: 96%">'+
                                     '<div style="padding: 2%; box-shadow: 1px 1px 3px rgb(100, 99, 99);border-radius:10px;background-color:rgb(255, 255, 255);width: 100%">'+
-                                    '<h3 style="text-align: center;"> Usuario: '+data.nameS[i]+'</h3>'+
+                                    '<h3 style="text-align: center;"> Usuario: '+data.name[i]+'</h3>'+
                                     '<h4 style="text-align: center;"> Nombre: '+data.fullname[i]+'</h4>'+
-                                    '<button style="width:100%" class="btn btn-outline-info js-tooltip" type="submit" onclick="location.href='+"'/newProjectInvitedUser/{{project.id}}/"+data.idS[i]+"'"+'"">Añadir como colaborador</button>\n'+
+                                    '<button style="width:100%" class="btn btn-outline-info js-tooltip" type="submit" onclick="location.href='+"'/newProjectInvitedUser/{{project.id}}/"+data.id[i]+"'"+'"">Añadir como colaborador</button>\n'+
                                     // '<button class="btn btn-outline-info js-tooltip" type="submit"  onclick="location.href='+"'/projectSlideDetail/"+data.id[i]+"'"+'"">Detalles</button>\n'+
                                     // '<button class="btn btn-outline-danger js-tooltip" type="submit"  onclick="location.href='+"'/projectDetail/23/"+data.id[i]+"'"+'"">Eliminar</button>'+
                                     '</div>'+
                                     '</div>'+
                                     '<div style="float:left;height:1%;width:100%"></div>';
                         
-                    }   
+                    }  
+                    if(data.name.length==0){
+                        html += '<div style="position: relative; float: left;left: 2%; width: 90%;padding: 5%;">'+
+                        '<h4> No se encontraron usuarios con los terminos de busqueda. Para invitar a un nuevo colaborador, ingrese un usuario valido en el buscardor</h4>'+
+                        '</div>';
+                    } 
                 } else{
+                    if(data.nameInvite){
+                        for (var i = 0; i < data.nameInvite.length; i++) {
+                            html += '<div style="position: relative; float: left;left: 2%; width: 96%">'+
+                                        '<div style="padding: 2%; box-shadow: 1px 1px 3px rgb(100, 99, 99);border-radius:10px;background-color:rgb(255, 255, 255);width: 100%">'+
+                                        '<h3 style="text-align: center;"> Usuario: '+data.nameInvite[i]+'</h3>'+
+                                        '<h4 style="text-align: center;"> Nombre: '+data.fullnameInvite[i]+'</h4>'+
+                                        '<h4 style="color:green;text-align: center;"> Invitación Enviada</h4>'+
+                                        '</div>'+
+                                        '</div>'+
+                                        '<div style="float:left;height:1%;width:100%"></div>';
+                            
+                        } 
+                    }
                     html += '<div style="position: relative; float: left;left: 2%; width: 90%;padding: 5%;">'+
-                        '<h4> Para añadir un nuevo colaborador, ingrese un usuario valido en el buscardor</h4>'+
+                        '<h4> Para invitar a un nuevo colaborador, ingrese un usuario valido en el buscardor</h4>'+
                         '</div>';
                 }
-                html +='</div>'+
-                '<div style="text-align: center;position: relative;height:5%"><h4>Lista de colaboradores</h4></div>'+
-                '<div style="height:2%;width:100%"></div>'+
-                '<div style=" overflow-y: scroll;height:43%">'+'<div style="position: relative; float: left;left: 2%; width: 96%">'+
-                '<div style="padding: 2%; box-shadow: 1px 1px 3px rgb(100, 99, 99);border-radius:10px;background-color:rgb(255, 255, 255);width: 100%">'+
-                '<h3 style="text-align: center;">'+data.ownerN+' (Propietario)</h3> '+
-                '<table style="padding: 15px;text-align: right;width:100%">'+
-                '</table>'+
-                '</div>'+
-                '</div>'+
-                '<div style="float:left;height:2%;width:100%"></div>';
-                for (var i = 0; i < data.name.length; i++) {
-                    if(data.id[i]!=data.ownerID){
-                            html += '<div style="position: relative; float: left;left: 2%; width: 96%">'+
-                                '<div style="padding: 2%; box-shadow: 1px 1px 3px rgb(100, 99, 99);border-radius:10px;background-color:rgb(255, 255, 255);width: 100%">'+
-                                    '<div class="titulo-y-botones">'+
-                                    '<h3 style="text-align: center;">'+data.name[i]+'</h3>';
-                                console.log(data.ownerID.toString());
-                                console.log('{{user_id}}');
-                                if(data.ownerID.toString()=='{{user_id}}'){
-                                    html += '<a href="#" style="display: inline-block;display: flex;position: absolute;right: 2%;"><i   class="btn-opcion material-icons" onclick="location.href='+"'/deleteProjectUser/{{project.id}}/"+data.id[i]+"'"+'"" >person_remove</i></a>';
-                                }
-                                html += '</div>'+
-                                '<table style="padding: 15px;text-align: right;width:100%">'+
-                                '<tr>'+
-                                '<td "></td>';''
-                                    // html += '<td><i style="position: relative;right:1%" onclick="location.href='+"'/deleteProjectUser/{{project.id}}/"+data.id[i]+"'"+'"" class="material-icons">person_remove</i></td>';
-                                    // html += '<td><button style="position: relative;right:1%" class="btn btn-outline-danger js-tooltip" type="submit" onclick="location.href='+"'/deleteProjectUser/{{project.id}}/"+data.id[i]+"'"+'"">Eliminar colaborador</button></td>';
-                                
-                                html += '</tr>'+
-                                '</table>'+
-                                '</div>'+
-                                '</div>'+
-                                '<div style="float:left;height:2%;width:100%"></div>';
-                    }
-                }
-                html += '</div>';
+                html +='</div>';
+                break;
             } 
             
             return html;
         }
-        
+    
         // Agrega el evento para actualizar los datos al hacer clic en el botón
         $('#placas_btn').on('click', function() {
             //document.getElementById("make").value = true; 
-            hideMenu()
+            hideMenu();
             optionMenu = 1;
+            chatInput.style.display = 'none';
             actualizarDatos('/datos_actualizados_placas/'+project+'/_','placas');
 
         });
         $('#catalogo_btn').on('click', function() {
             //document.getElementById("make").value = true; 
+            chatInput.style.display = 'none';
             optionMenu = 2;
-            hideMenu()
+            hideMenu();
             actualizarDatos('/datos_actualizados_catalogo/'+project+'/_','catalogo');
 
         });
         $('#colaboradores_btn').on('click', function() {
             //document.getElementById("make").value = true; 
             optionMenu = 3;
-            hideMenu()
+            chatInput.style.display = 'none';
+            hideMenu();
             actualizarDatos('/datos_actualizados_colaboradores/'+project+'/_','colaboradores');
+
+        });
+        $('#chat_btn').on('click', function() {
+            //document.getElementById("make").value = true; 
+            optionMenu = 4;
+            hideMenu();
+
+            chatInput.style.display = 'block';
+            actualizarDatos('/datos_actualizados_chat/'+project+'/_','chat');
 
         });
 
@@ -336,6 +451,12 @@
                 document.getElementById("buscarDato").value = '';
                 actualizarDatos('/datos_actualizados_colaboradores/'+project+'/'+buscarInfo,'colaboradores');
             }
+            if(optionMenu==4){
+                buscarInfo= document.getElementById("buscarDato").value;
+
+                document.getElementById("buscarDato").value = '';
+                actualizarDatos('/datos_actualizados_chat/'+project+'/'+buscarInfo,'chat');
+            }
         });
 
         if("{{optionNum}}"==0){
@@ -362,6 +483,11 @@
             actualizarDatos('/datos_actualizados_colaboradores/'+project+'/_','colaboradores');
 
         }
+        if("{{optionNum}}"==4){
+            opcionClick('Chat')
+            actualizarDatos('/datos_actualizados_chat/'+project+'/_','chat');
+
+        }
         var slide_url_format = "/media/slides/"+i+"/{z}/{y}/{x}.jpg";
 
         
@@ -382,7 +508,6 @@
             zoom: h,
             animate: true
         });
-
         var layer =  L.tileLayer(slide_url_format, {
             minZoom:2,
             noWrap: true,
@@ -443,7 +568,10 @@
             }
         });
 
-                  
+        const chatSocket = new WebSocket(
+        "ws://{{ request.get_host }}/ws/projects/"+ project +"/"
+        );
+ 
 
         map.on('zoomstart', function () {
             map.setMaxBounds(null);
@@ -461,6 +589,8 @@
             modal.style.display = 'none';
         });
 
+       
+
         cerrarModal2.addEventListener('click', function() {
             modal.style.display = 'none';
         });
@@ -476,7 +606,8 @@
         var menuBtn = document.getElementById('menuBt');
         menuBtn.textContent = opcion;
     }
-    
+    // <html += '<td><i style="position: relative;right:1%" onclick="location.href='+"'/deleteProjectUser/{{project.id}}/"+data.id[i]+"'"+'"" class="material-icons">person_remove</i></td>';
+    //                                 html += '<td><button style="position: relative;right:1%" class="btn btn-outline-danger js-tooltip" type="submit" onclick="location.href='+"'/deleteProjectUser/{{project.id}}/"+data.id[i]+"'"+'"">Eliminar colaborador</button></td>'
 </script>
 <div style = "float: right;right: 0%; width:25%;height: 100%;">
    
@@ -487,7 +618,10 @@
             <ul id="menuList"  class="menu-list">
               <li><a href="#" id= 'placas_btn' onclick="opcionClick('Láminas Virtuales')">Láminas Virtuales</a></li>
               <li><a href="#" id= 'catalogo_btn' onclick="opcionClick('Catalogo')">Catálogo</a></li>
-              <li><a href="#" id= 'colaboradores_btn' onclick="opcionClick('Colaboradores')">Colaboradores</a></li>
+              <li><a href="#" id= 'chat_btn' onclick="opcionClick('Chat')">Chat</a></li>
+              {%if user_id == project.user.id%}
+              <li><a href="#" id= 'colaboradores_btn' onclick="opcionClick('Colaboradores')">Invitar Colaborador</a></li>
+              {%endif%}
               <!-- Agrega más opciones de menú según tus necesidades -->
             </ul>
           </div>   
@@ -510,13 +644,25 @@
             
     </div>
     <div style="float:left;height:1%;width:100%"></div> 
-<div id="datos_actualizados" style="position: relative; overflow-y: scroll;height: 69%; width: 100%;top:1%;">
+<div id="datos_actualizados" style="position: relative; overflow-y: scroll;height: 68%; width: 100%;top:1%;">
     
     </div>
-    <div style = "padding-top:5%;padding-right:15%;padding-left:15%; width:100%">
-     <button style=" position: relative;" class="btn btn-outline-dark btn-block js-tooltip" type="submit" onclick="location.href='{% url 'project-list' %}'">Retroceder</button>
+    
+    <div style="position: relative; padding-top: 2%;overflow-y: scroll;height: 8%;bottom:0%;width:100%">
+        <div style="display: none;" id="chatInput">
+        <form id="message-form" >
+            <input type="text" name="message" id="message-input" placeholder="Escribe un mensaje...">
+            <button class="btn btn-outline-primary js-tooltip" id="send-button"><i style="font-size: 20px;" class="material-icons">send</i></button>
+        </form>
+        </div>
     </div>
+    <div style = "position: relative;padding-top: 2%;padding-right:15%;padding-left:15%; width:100%">
+        <button style=" position: relative;width: 100%;" class="btn btn-outline-dark btn-block js-tooltip" type="submit" onclick="location.href='{% url 'project-list' %}'">Retroceder</button>
+  
+     </div>
+     
 </div>
+  
 <div id="miModal" class="modal">
     <div class="modal-contenido">
     <span class="cerrar" id="cerrarModal">&times;</span>
@@ -607,7 +753,7 @@
         </div>
         
         {%else%}
-            <div  style="padding-left: 5%;padding-right: 5%;overflow-y: scroll;position: relative;box-shadow: 1px 1px 10px rgb(100, 99, 99);background-color:rgb(255, 254, 254);left: 0%;top:2%;width:73%;height: 92%">
+            <div  style="padding-left: 5%;padding-right: 5%;overflow-y: scroll;position: relative;box-shadow: 1px 1px 10px rgb(100, 99, 99);background-color:rgb(255, 254, 254);left: 0%;top:2%;width:73%;height: 95%">
                 <div style="position:relative;padding: 2%;top:3%;width: 100%;">
                     <h1 style="text-align: center;">{{project.name}}</h1>
                     <!-- <hr>     -->
@@ -666,7 +812,41 @@
                 <div style="position:relative;float: left;top:2%;border-radius: 10px;width: 100%;padding: 2%;background-color: rgb(241, 241, 241);">
                     <h3 style="text-align: center;">{{project.description}}</h3>
                 </div>
-                
+                <div style="position:relative;float: left;top:2%;width: 100%;padding: 2%;">
+                    <h2>Colaboradores</h2>
+                </div>
+                    <div style="position: relative; float: left;left: 2%; width: 96%">
+                        <div style="padding: 2%; box-shadow: 1px 1px 3px rgb(100, 99, 99);border-radius:10px;background-color:rgb(255, 255, 255);width: 100%">
+                            <h3 style="text-align: center;">{{project.user}} (Propietario)</h3> 
+                        
+                        </div>
+                    </div>
+                    <div style="float:left;height:2%;width:100%"></div>
+               
+                {%for data in member%}
+                <!-- if(data.id[i]!=data.ownerID){-->
+                            <div style="position: relative; float: left;left: 2%; width: 96%">
+                                <div style="padding: 2%; box-shadow: 1px 1px 3px rgb(100, 99, 99);border-radius:10px;background-color:rgb(255, 255, 255);width: 100%">
+                                    <div class="titulo-y-botones">
+                                    <h3 style="text-align: center;">{{data.username}}</h3>
+                                
+                                <!-- if(data.ownerID.toString()=='{{user_id}}'){ -->
+                                {%if user_id == project.user.id%}
+                                    <a href="#" style="display: inline-block;display: flex;position: absolute;right: 2%;"><i   class="btn-opcion material-icons" onclick="location.href='/deleteProjectUser/{{project.id}}/{{data.id}}'" >person_remove</i></a>
+                                {%endif%}
+                               </div>
+                                <table style="padding: 15px;text-align: right;width:100%">
+                                <tr>
+                                <td ></td>
+                                
+                                
+                                </tr>
+                                </table>
+                                </div>
+                                </div>
+                                <div style="float:left;height:2%;width:100%"></div>
+                    
+                {%endfor%}
                 
                 
             </div>   

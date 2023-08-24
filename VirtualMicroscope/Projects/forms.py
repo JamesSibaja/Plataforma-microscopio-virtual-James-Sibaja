@@ -26,7 +26,13 @@ class ProjectForm(forms.ModelForm):
 class ProjectAdmin(admin.ModelAdmin):
     form = ProjectForm
 
-
+class MensajeForm(forms.Form):
+    contenido = forms.CharField(widget=forms.Textarea)
+    class Meta:
+        model = Notes
+        fields = ['user','project','contenido']
+        labels = {'name':'Texto','description':'Detalles Adicionales'}
+        exclude = ['user','project','contenido']
 
 class SearchForm(forms.Form):
     titulo = forms.CharField()

@@ -125,8 +125,8 @@
                 {%for project in invite%}
               
                 <tr style="background-color: rgb(104, 129, 158)">
-                  <th style=" padding: 15px">{{project.name}}  </th>
-                  <th>{{project.description}}</th>
+                  <th style="color: #dddddd; padding: 15px">{{project.name}}  </th>
+                  <th><a style="color: #dddddd;" href='/projectProfileDetail/{{project.id}}/0/0'>{{project.description}}</a></th>
                   
                   <th><button class="btn btn-info js-tooltip" type="submit" onclick="location.href='/newProjectUser/{{project.id}}/{{user.id}}'">Aceptar</button> </th> 
                   <th> <button class="btn btn-danger js-tooltip" type="submit" onclick="location.href='/deleteProject/{{project.id}}'">Rechazar</button></th>

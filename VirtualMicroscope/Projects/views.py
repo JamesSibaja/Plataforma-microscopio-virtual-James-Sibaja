@@ -4,8 +4,8 @@ from django.views import generic
 from django.template import Template, context
 from django.views.generic.edit import FormView, DeleteView
 from django.db.models import Q
-from Projects.forms import NoteForm, ProjectForm, SearchForm, ProjectSlideForm
-from Projects.models import Project, Notes, ProjectSlide
+from Projects.forms import NoteForm, ProjectForm, SearchForm, ProjectSlideForm, MensajeForm
+from Projects.models import Project, Notes, ProjectSlide, Message
 from Microscopio.models import Slide
 from django.http import JsonResponse
 from django.template.loader import render_to_string
@@ -13,6 +13,7 @@ from django.contrib.auth.models import User
 from django.core.paginator import Paginator
 from .forms import CustomUserChangeForm
 from django.contrib.auth.decorators import login_required
+from django.utils import timezone
 
 @login_required
 def edit_profile(request):
@@ -88,6 +89,8 @@ class projects(generic.ListView,FormView,):
             instancia.save()
 
         return redirect(self.request.path)
+    
+
 
 class projectSlideDetail(generic.DetailView,FormView,DeleteView):
     # note = Notes.objects.all()
@@ -160,7 +163,7 @@ class projectDetail(generic.DetailView,FormView,DeleteView):
     
     def get(self, request, *args, **kwargs):
         # context = super(projectDetail, self).get_context_data(**kwargs)
-        
+        form_b = MensajeForm
         form = ProjectSlideForm
         project = self.get_object()
         plates  = ProjectSlide.objects.filter(project=self.get_object())
@@ -220,20 +223,22 @@ class projectDetail(generic.DetailView,FormView,DeleteView):
             paginator = Paginator(catalogo,9)
         
         page = request.GET.get('page')
-        
+        list = Project.objects.get(id = project.id)
+        member = list.sharedUsers.all()
         
         catalogo = paginator.get_page(page)
-        return render(request,"Projects/project.html",{'user_id': user_id,'geojson_list':geojson_list,'catalogo':catalogo,'numPlacas':numPlacas,'numUser':numUser,'optionNum':optionNum,'mapSlide':mapSlide,'project':project,'ver':ver,'form':form,'pk':pk,'placaId':placaID,'slideName':slideName,'plates':plates})
+        return render(request,"Projects/project.html",{'member':member,'user_id': user_id,'geojson_list':geojson_list,'catalogo':catalogo,'numPlacas':numPlacas,'numUser':numUser,'optionNum':optionNum,'mapSlide':mapSlide,'project':project,'ver':ver,'form':form,'form_b':form_b,'pk':pk,'placaId':placaID,'slideName':slideName,'plates':plates})
     
     
     def post(self, request, *args, **kwargs):
         object_instance = self.get_object() 
         idNum = self.kwargs['map']
         optionNum = self.kwargs['option']
+        form_b = MensajeForm(request.POST)
         if(optionNum == 1):
             projec_slide_instance = ProjectSlide.objects.get(id= idNum )
             form = ProjectSlideForm(request.POST,instance=projec_slide_instance)
-        else:
+        elif(optionNum == 2):
             form = ProjectSlideForm(request.POST)
         # print('jos')
         if form.is_valid():
@@ -249,7 +254,84 @@ class projectDetail(generic.DetailView,FormView,DeleteView):
             instancia.slide = mySlide
             instancia.save()
 
+        if form_b.is_valid():
+            instancia = form_b.save(commit=False)
+
         return redirect(self.request.path)
+    
+class projectProfileDetail(generic.DetailView,FormView,DeleteView):
+    # note = Notes.objects.all()
+    template_name = "Projects/projectProfile.html"
+    model = Project
+    
+     
+
+    def get_success_url(self):
+        return self.request.path
+
+    def get_context_data(self, **kwargs):
+        context = super(projectDetail, self).get_context_data(**kwargs)
+        projectSelf =  self.get_object()
+        placas = ProjectSlide.objects.filter(project=projectSelf.project)
+        catalogo = Slide.objects.all()
+        idNum = self.kwargs['map']
+        usuarios = projectSelf.sharedUsers
+        #pk = ProjectSlide.objects.filter(project=context['pk'])
+        context['form'] = ProjectSlideForm
+        context['plates'] = placa
+        context['catalogo'] = catalogo
+        context['usuarios'] = usuarios
+        
+        context['slideSel'] = None
+        context['slideId'] = None
+        # context['make'] = str(self.kwargs['sel'])
+        context['pk'] = str(self.kwargs['pk'])
+      
+        return context
+    
+    def get(self, request, *args, **kwargs):
+        # context = super(projectDetail, self).get_context_data(**kwargs)
+        
+        project = self.get_object()
+        plates  = ProjectSlide.objects.filter(project=self.get_object())
+        
+        pk = str(self.kwargs['pk'])
+        queryset = request.GET.get('buscar')
+        ver = request.GET.get('ver')
+        numUser = 1
+        for item in project.sharedUsers.all():
+            numUser = numUser + 1
+
+        numPlacas = 0
+        for item in plates:
+            numPlacas = numPlacas + 1
+
+
+        mapNum = self.kwargs['map']
+        optionNum = self.kwargs['option']
+        mapSlide = None
+        geojson_list = []
+        if(optionNum ==1):
+            if(mapNum):
+                mapSlide = ProjectSlide.objects.get(id=mapNum)
+                elementos = Notes.objects.exclude(geojson_data=None).filter(show=True,project=mapSlide)  # Recupera los modelos con el campo 'show' verdadero
+                geojson_list = [{"geojson": elemento.geojson_data} for elemento in elementos]
+        
+        placaID = request.GET.get('placaId')
+        mySlide = None
+        slideName = None
+
+        if placaID:
+            mySlide = Slide.objects.get(id=placaID)
+            slideName = mySlide.name
+      
+            
+       
+        user_id = request.user.id
+        
+        return render(request,"Projects/projectProfile.html",{'user_id': user_id,'geojson_list':geojson_list,'numPlacas':numPlacas,'numUser':numUser,'optionNum':optionNum,'mapSlide':mapSlide,'project':project,'ver':ver,'pk':pk,'placaId':placaID,'slideName':slideName,'plates':plates})
+    
+    
 
 class noteDetail(generic.DetailView):
     # note = Notes.objects.all()
@@ -355,7 +437,7 @@ def newProjectUser(request, project_id,projectUser_id):
     proyecto.invitedUsers.remove(usuario)
     if(proyecto.user != usuario):
         proyecto.sharedUsers.add(usuario)
-    new_url = '/projectDetail/'+str(project_id)+'/3/0'
+    new_url = '/projectDetail/'+str(project_id)+'/1/0'
 
     return redirect(new_url)
 
@@ -454,8 +536,8 @@ def datos_actualizados_placas(request,*args, **kwargs):
 def datos_actualizados_colaboradores(request,*args, **kwargs):
     queryset = kwargs.get('buscar', None)
     itemsBuscar = None
-    nombresBuscar = None
-    idListBuscar = None
+    nombres= None
+    idList = None
     fullname = None
     project= kwargs.get('project', None)
     list = Project.objects.get(id = project)
@@ -474,9 +556,10 @@ def datos_actualizados_colaboradores(request,*args, **kwargs):
         for condicion in condiciones_busqueda:
             consulta |= condicion
         shared_user_ids = list.sharedUsers.values_list('id', flat=True)
-
+        invited_user_ids = list.invitedUsers.values_list('id', flat=True)
+        
         # Construye la consulta para excluir usuarios por ID
-        exclude = Q(id__in=shared_user_ids) | Q(id=list.user.id)
+        exclude = Q(id__in=shared_user_ids) | Q(id=list.user.id) | Q(id__in=invited_user_ids)
 
         # Filtra los usuarios basados en la consulta
         itemsBuscar = User.objects.exclude(exclude).filter(consulta)
@@ -484,14 +567,61 @@ def datos_actualizados_colaboradores(request,*args, **kwargs):
         paginator = Paginator(itemsBuscar,9)    
         page = request.GET.get('page')
         itemsBuscar= paginator.get_page(page)
-        nombresBuscar = [item.username for item in itemsBuscar]
-        idListBuscar = [item.id for item in itemsBuscar]
+        nombres = [item.username for item in itemsBuscar]
+        idList = [item.id for item in itemsBuscar]
         fullname = [str(item.first_name)+' '+str(item.last_name) for item in itemsBuscar]
 
-    items = list.sharedUsers.all()
-    nombres = [item.username for item in items]
-    idList = [item.id for item in items]
+    invitedMember = list.invitedUsers.all()
+    nombresInvite = [item.username for item in invitedMember]
+    idListInvite = [item.id for item in invitedMember]
+    fullnameInvite = [str(item.first_name)+' '+str(item.last_name) for item in invitedMember]
+
     ownerID = list.user.id
     ownerN = list.user.username
 
-    return JsonResponse({'fullname':fullname,'name':nombres,'id':idList,'ownerN':ownerN,'ownerID':ownerID,'nameS':nombresBuscar,'idS':idListBuscar}, safe=False)  
+    return JsonResponse({'fullnameInvite':fullnameInvite,'nameInvite':nombresInvite,'fullname':fullname,'ownerN':ownerN,'idInvite':idListInvite,'ownerID':ownerID,'name':nombres,'id':idList}, safe=False)  
+
+def datos_actualizados_chat(request,*args, **kwargs):
+    queryset = kwargs.get('buscar', None)
+    itemsBuscar = None
+    meessages= None
+    messageDate = None
+    project= kwargs.get('project', None)
+    list = Message.objects.filter(project = project).order_by('fecha_envio')
+
+    # if queryset and not queryset == '_':
+    #     palabras = queryset.split()
+    #     condiciones_busqueda = []
+
+    #     for palabra in palabras:
+    #         condicion = Q(username__icontains=palabra)
+    #         # condicion2 = Q(description__icontains=palabra) 
+    #         condiciones_busqueda.append(condicion)
+    #         # condiciones_busqueda.append(condicion2)
+
+    #     consulta = Q()
+    #     for condicion in condiciones_busqueda:
+    #         consulta |= condicion
+    #     shared_user_ids = list.sharedUsers.values_list('id', flat=True)
+    #     invited_user_ids = list.invitedUsers.values_list('id', flat=True)
+        
+    #     # Construye la consulta para excluir usuarios por ID
+    #     exclude = Q(id__in=shared_user_ids) | Q(id=list.user.id) | Q(id__in=invited_user_ids)
+
+    #     # Filtra los usuarios basados en la consulta
+    #     itemsBuscar = User.objects.exclude(exclude).filter(consulta)
+        
+    #     paginator = Paginator(itemsBuscar,9)    
+    #     page = request.GET.get('page')
+    #     itemsBuscar= paginator.get_page(page)
+    #     nombres = [item.username for item in itemsBuscar]
+    #     idList = [item.id for item in itemsBuscar]
+    #     fullname = [str(item.first_name)+' '+str(item.last_name) for item in itemsBuscar]
+
+    
+    name = [item.user.username for item in list]
+    meessage = [item.contenido for item in list]
+    date = [timezone.make_aware(item.fecha_envio).strftime("%I:%M %p") for item in list]
+    userid = [item.user.id for item in list]
+
+    return JsonResponse({'meessages':meessage,'name':name,'date':date,'userId':userid}, safe=False)  
