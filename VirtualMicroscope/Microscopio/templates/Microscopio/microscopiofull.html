@@ -67,7 +67,14 @@
            keepBuffer:3,
            maxZoom:j
        }).addTo(map);
+       map.attributionControl.setPrefix(false);
+       var miniMap = new L.Control.MiniMap(
+                    L.tileLayer(slide_url_format),
+                    { toggleDisplay: true }
+                );
 
+                // Agrega el minimapa al mapa principal
+        miniMap.addTo(map);
        });
    /* Get the documentElement (<html>) to display the page in fullscreen */
    var elem = document.documentElement;

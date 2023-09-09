@@ -1,0 +1,82 @@
+version: '3'
+
+services:
+  # Servicio de la base de datos PostgreSQL
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: microscopio
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: microVirtual
+    ports:
+      - "5432:5432"
+    networks:
+      - mynetwork
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  # Servicio de la aplicación Django
+  web:
+    build:
+      context: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    networks:
+      - mynetwork
+    environment:
+      DEBUG: "True"
+      DJANGO_DB_HOST: db
+
+  celery:
+    build:
+      context: .
+    command: celery -A VirtualMicroscope worker -l info
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+    env_file:
+      - .env
+
+networks:
+  mynetwork:
+    driver: bridge
+
+volumes:
+  db_data:
+
+
+
+
+
+
+# version: '3'
+
+# services:
+#   web:
+#     build:
+#       context: .
+#     command: python manage.py runserver 0.0.0.0:8000
+#     ports:
+#       - "8000:8000"
+#     volumes:
+#       - .:/app
+#     depends_on:
+#       - db
+#     env_file:
+#       - .env
+
+#   db:
+#     image: postgres:13
+#     environment:
+#       POSTGRES_DB: microscopio
+#       POSTGRES_USER: postgres
+#       POSTGRES_PASSWORD: microVirtual
+
+
+

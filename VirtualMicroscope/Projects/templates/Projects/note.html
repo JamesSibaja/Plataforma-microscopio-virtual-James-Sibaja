@@ -56,7 +56,11 @@
     text-decoration: none;
     /* transition: background-color 0.3s, color 0.3s; */
 }
-
+.has-overflow {
+    /* Aplica los estilos que desees para el contenedor con overflow aquí */
+    /* Cambia el color de fondo */
+    pointer-events: auto;
+}
 .btn-opcion2 {
     display: inline-block;
     border-radius: 10px;
@@ -167,7 +171,11 @@
         var h = "{{projectSlide.slide.zoomI}}";
         var j = "{{projectSlide.slide.zoomM}}";
 
+        var notasMenu = document.getElementById('notasMenu');
 
+        if (notasMenu.scrollHeight > notasMenu.clientHeight) {
+            notasMenu.classList.add('has-overflow');
+        }
         //var datosGeoJSON = JSON.parse('{% autoescape off %}{{ notes.geojson_data|escapejs }}{% endautoescape %}');
 
         //window.alert(datosGeoJSON);
@@ -188,9 +196,17 @@
         var customZoomControl = L.control.zoom({
             position: 'bottomright'
         }).addTo(map);
+        L.control.fullscreen({
+            position: 'topright',  // Posición del botón (topright, topleft, bottomright, bottomleft)
+            title: 'Pantalla completa',  // Texto que aparecerá cuando el usuario pase el cursor sobre el botón
+            titleCancel: 'Salir de pantalla completa',  // Texto para salir de pantalla completa
+            forceSeparateButton: true  // Mostrar un botón separado para salir de pantalla completa
+        }).addTo(map);
 
         var drawnItems = new L.FeatureGroup();
         map.addLayer(drawnItems);
+
+       
 
         L.drawLocal.draw.toolbar.actions.title = 'Cancelar dibujo';
         L.drawLocal.draw.toolbar.actions.text = 'Cancelar';
@@ -428,7 +444,15 @@
             keepBuffer:8,
             maxZoom:j
         }).addTo(map);
+        map.attributionControl.setPrefix(false);
+        
+        var miniMap = new L.Control.MiniMap(
+                    L.tileLayer(slide_url_format),
+                    { position: 'bottomleft', toggleDisplay: true }
+                );
 
+                // Agrega el minimapa al mapa principal
+        miniMap.addTo(map);
         var pos = map.getBounds();
 
         var pos11,ps12,pos21,pos22
@@ -440,7 +464,6 @@
         
         }   
         var expandBtn = document.getElementById('botonDesplegar');
-        var notasMenu = document.getElementById('notasMenu');
         let isSelected = false;
 
         expandBtn.addEventListener('click', function () {
@@ -602,8 +625,8 @@
     
     
 </div>
-<div style = "position: absolute; right: 3%;top:10%;padding: 0%;border-radius:10px; background-color:rgba(221, 220, 220, 0.8);width:10%">
-    <button style=" width: 100%;" class="btn btn-outline-dark  btn-block js-tooltip" type="submit" onclick="location.href='/projectDetail/{{projectSlide.project.id}}/0/0'">Retroceder</button>
+<div style = "position: absolute; right: 5%;top:9%;padding: 0%;border-radius:10px; background-color:rgba(221, 220, 220, 0.8);width:10%">
+    <button style=" width: 100%;" class="btn btn-outline-dark  btn-block js-tooltip" type="submit" onclick="location.href='{{ note.project.get_absolute_url }}'">Retroceder</button>
 </div>
 <!-- <button id="colorPickerBtn">Elegir color</button>
 <div id="colorPickerMenu" style="display: none;">

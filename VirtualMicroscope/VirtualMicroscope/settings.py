@@ -23,6 +23,15 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'q8+a9-q&i&06rel!!wygym!8-j(@3@@*#g6m#c#wlw@v&-bf7v'
 
 
+MAX_UPLOAD_SIZE = 34359738368  # 32 GB en bytes
+
+FILE_UPLOAD_MAX_MEMORY_SIZE = MAX_UPLOAD_SIZE  # El archivo se almacenará en memoria antes de guardarlo en el sistema de archivos
+
+DATA_UPLOAD_MAX_MEMORY_SIZE = MAX_UPLOAD_SIZE  # Tamaño máximo de datos en memoria antes de procesar la solicitud
+
+# Configuración de Dropzone
+DROPZONE_MAX_FILE_SIZE = MAX_UPLOAD_SIZE  # 32 GB en bytes
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -31,11 +40,24 @@ ALLOWED_HOSTS = ['*']
 
 
 # Application definition
+CELERY_BROKER_URL = 'redis://localhost:6379/0' 
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0' 
+ # Cambia esto según la ubicación de tu servidor RabbitMQ
+# CELERY_RESULT_BACKEND = 'django-db+postgresql://postgres:microVirtual@localhost:5432/microscopio' # Cambia esto según tu preferencia
+
+CELERY_CACHE_BACKEND = 'django-cache'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'
+CELERY_ENABLE_UTC = True
 
 
+CELERY_TASK_TRACK_STARTED = True
+# CELERY_TASK_TIME_LIMIT = 30 * 60
 
 INSTALLED_APPS = [
-    'daphne',
+    
     'VMapp',
     'Microscopio',
     'Projects',
@@ -44,11 +66,13 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'daphne',
     'django.contrib.staticfiles',
+    'django_celery_results',
     
 ]
 
-
+# python3 manage.py migrate django_celery_results
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -79,6 +103,10 @@ TEMPLATES = [
     },
 ]
 
+MIME_TYPES = {
+    'js': 'application/javascript',
+}
+
 WSGI_APPLICATION = 'VirtualMicroscope.wsgi.application'
 ASGI_APPLICATION = 'VirtualMicroscope.asgi.application'
 
@@ -93,15 +121,7 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 50,
 }
 
-# Database
-# https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#     }
-# }
 
 DATABASES = {
     'default': {
@@ -157,8 +177,13 @@ USE_L10N = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, "static"),
+    '/static/',
+)
+
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+
+# remove STATIC_ROOT
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-# STATIC_ROOT = os.path.join(BASE_DIR, 'static')

@@ -2,8 +2,11 @@ import os
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'VirtualMicroscope.settings')
 
 import json
-from .models import Message
+import django
+django.setup()
+from .models import Message, User
 from channels.generic.websocket import AsyncWebsocketConsumer
+from datetime import datetime
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -26,11 +29,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         data = json.loads(text_data)
         message = data['message']
-        user = self.scope['user']
+        user = data['user']
 
-        await Message.objects.create(
+        Message.objects.create(
             project_id=self.project_id,
-            user=user,
+            user_id=user,
             contenido=message
         )
 
@@ -39,7 +42,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             {
                 'type': 'chat_message',
                 'message': message,
-                'user': user.username
+                'user': user
             }
         )
 
@@ -49,5 +52,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         await self.send(text_data=json.dumps({
             'message': message,
-            'user': user
+            'user': user,
+            'username':User.objects.get(id= int(user)).username,
+            'fecha': datetime.now().strftime("%I:%M %p")
         }))

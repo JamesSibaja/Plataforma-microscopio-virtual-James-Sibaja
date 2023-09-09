@@ -270,6 +270,7 @@
             keepBuffer:8,
             maxZoom:j
         }).addTo(map);
+        map.attributionControl.setPrefix(false);
         if("{{optionNum}}"==1){
             for (var i = 0; i < geojson_list.length; i++) {
                 var geojson = JSON.parse(geojson_list[i].geojson);

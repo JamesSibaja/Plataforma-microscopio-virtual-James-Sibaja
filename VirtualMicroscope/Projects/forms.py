@@ -3,15 +3,7 @@ from django import forms
 from Projects.models import ProjectSlide, Notes, Project, User
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.contrib import admin
-from django.contrib.auth.forms import UserChangeForm
 
-class CustomUserChangeForm(UserChangeForm):
-    
-
-    class Meta:
-        model = User  # Importa el modelo de usuario si aún no lo has hecho
-        fields = ( 'first_name', 'last_name','email', )
-        
 
 class ProjectForm(forms.ModelForm):
     class Meta:

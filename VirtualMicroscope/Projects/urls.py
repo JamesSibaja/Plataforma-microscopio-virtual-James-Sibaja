@@ -25,5 +25,4 @@ urlpatterns = [
     path('datos_actualizados_placas/<int:project>/<str:buscar>', datos_actualizados_placas, name='datos_actualizados_placas'),
     path('datos_actualizados_colaboradores/<int:project>/<str:buscar>', datos_actualizados_colaboradores, name='datos_actualizados_colaboradores'),
     path('datos_actualizados_chat/<int:project>/<str:buscar>', datos_actualizados_chat, name='datos_actualizados_chat'),
-     path('edit_profile/', edit_profile, name='edit_profile'),
 ]

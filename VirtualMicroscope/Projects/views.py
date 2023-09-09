@@ -11,21 +11,12 @@ from django.http import JsonResponse
 from django.template.loader import render_to_string
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
-from .forms import CustomUserChangeForm
-from django.contrib.auth.decorators import login_required
 from django.utils import timezone
+from django.utils.decorators import method_decorator
+from .decorators import user_is_project_collaborator 
 
-@login_required
-def edit_profile(request):
-    if request.method == 'POST':
-        form = CustomUserChangeForm(request.POST, instance=request.user)
-        if form.is_valid():
-            form.save()
-            return redirect('/project/')  # Cambia 'profile' por la URL deseada
-    else:
-        form = CustomUserChangeForm(instance=request.user)
-    
-    return render(request, 'Projects/edit_profile.html', {'form': form})
+
+
 
 class projects(generic.ListView,FormView,):
     template_name = "Projects/projectList.html"
@@ -84,15 +75,18 @@ class projects(generic.ListView,FormView,):
                 # mySlide = slide
             instancia = form.save(commit=False)
             instancia.user = object_instance
-            
-            # instancia.slide = mySlide
             instancia.save()
+            Message.objects.create(
+                project_id=instancia.id,
+                user=object_instance,
+                contenido='Bienvenidos'
+            )
 
         return redirect(self.request.path)
     
 
 
-class projectSlideDetail(generic.DetailView,FormView,DeleteView):
+class projectSlideDetail(generic.DetailView,FormView):
     # note = Notes.objects.all()
     template_name = "Projects/projectSlide.html"
     model = ProjectSlide
@@ -117,6 +111,7 @@ class projectSlideDetail(generic.DetailView,FormView,DeleteView):
 
     def post(self, request, *args, **kwargs):
         object_instance = self.get_object()
+        
         form = NoteForm(request.POST)
         if form.is_valid():
             instancia = form.save(commit=False)
@@ -326,10 +321,11 @@ class projectProfileDetail(generic.DetailView,FormView,DeleteView):
             slideName = mySlide.name
       
             
-       
+        list = Project.objects.get(id = project.id)
+        member = list.sharedUsers.all()
         user_id = request.user.id
         
-        return render(request,"Projects/projectProfile.html",{'user_id': user_id,'geojson_list':geojson_list,'numPlacas':numPlacas,'numUser':numUser,'optionNum':optionNum,'mapSlide':mapSlide,'project':project,'ver':ver,'pk':pk,'placaId':placaID,'slideName':slideName,'plates':plates})
+        return render(request,"Projects/projectProfile.html",{'member':member,'user_id': user_id,'geojson_list':geojson_list,'numPlacas':numPlacas,'numUser':numUser,'optionNum':optionNum,'mapSlide':mapSlide,'project':project,'ver':ver,'pk':pk,'placaId':placaID,'slideName':slideName,'plates':plates})
     
     
 

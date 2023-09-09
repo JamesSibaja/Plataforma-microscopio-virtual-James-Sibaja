@@ -10,7 +10,7 @@
     cursor: pointer;
     overflow: hidden;
     position: relative;
-    border-radius:10px;
+    border-radius:20px;
 }
 #message-form {
     display: flex;
@@ -22,7 +22,7 @@
     bottom:  0%; /* Alinea el centro verticalmente */
     right: 0%; /* Alinea el centro horizontalmente */
     /* transform: translate(-50%, -50%); */
-    background-color: rgba(6, 34, 128, 0.5); /* Fondo semitransparente */
+    background-color: rgba(9, 24, 73, 0.575); /* Fondo semitransparente */
     color: white;
     padding: 2%;
     border-radius: 10px 0px 0px 0px;
@@ -190,6 +190,7 @@
 <script type="text/javascript">
     
     var geojson_list = {{ geojson_list|safe }};
+    var userId = {{user_id}}
     $(document).ready(function() {
         
         var project = "{{ project.id }}";
@@ -235,7 +236,7 @@
                     
                     var listaActualizada = generarHTMLLista(data,option);
                     $('#datos_actualizados').html(listaActualizada);
-                    
+                    scrollToBottom();
                 },
                 error: function (error) {
                     alert(' error');
@@ -270,9 +271,9 @@
             case 'catalogo':
                 if (data.name.length){ 
                     for (var i = 0; i < data.name.length; i++) {
-                        html += '<div style="position: relative; left: 2%;float: left;padding: 1%;width: 96%">'+
+                        html += '<div style="position: relative; left: 8%;float: left;padding: 2%;width: 84%">'+
                                        
-                                        '<div class="botonImagen" style="box-shadow: 1px 1px 10px rgb(100, 99, 99);width: 96%;padding-bottom: 55%;position: relative; float: left;left: 2%;">' +
+                                        '<div class="botonImagen" style="box-shadow: 1px 1px 10px rgb(100, 99, 99);width: 96%;padding-bottom: 65%;position: relative; float: left;left: 2%;">' +
                                             '<img  type="submit" onclick="location.href='+"'/projectDetail/{{project.id}}/2/"+data.id[i]+"'"+' "style="object-fit: cover;width: 100%;height: 100%;position: absolute;" src="'+data.image[i]+'" >'+ 
                                             '<div class="text-overlay">'+
                                                 '<h4>'+data.name[i]+'</h4>'+
@@ -301,25 +302,25 @@
                 if (data.meessages.length){ 
                     for (var i = 0; i < data.meessages.length; i++) {
                         if(data.userId[i] != '{{user_id}}'){
-                            html += '<div style="padding-bottom: 0%;position: relative; left: 4%;float: left;padding: 2%; box-shadow: 1px 1px 3px rgb(100, 99, 99);border-radius:0px 10px 10px 10px;background-color:rgb(255, 255, 255);width: 80%">'+
-                                    '<h5 style="color:'+generarColorAleatorio(data.name[i])+'">'+data.name[i]+':</h5>'+
+                            html += '<div style=" position: relative; left: 4%;float: left;padding: 2%; box-shadow: 1px 1px 3px rgb(100, 99, 99);border-radius:0px 10px 10px 10px;background-color:rgb(255, 255, 255);min-width:35%;max-width:80%">'+
+                                    '<p style="margin-bottom: 0px;font-size: 15px;color:'+generarColorAleatorio(data.name[i])+'"><b>'+data.name[i]+':</b></p>'+
                                     data.meessages[i]+
-                                    '<p style="font-size: 12px;color:rgb(100,100,100);text-align: right; ">'+data.date[i]+'</p>'+
+                                    '<p style="margin-bottom: 0px;font-size: 12px;color:rgb(100,100,100);text-align: right; ">'+data.date[i]+'</p>'+
                                     '</div >' +
                                     // '<button class="btn btn-outline-info js-tooltip" type="submit"  onclick="location.href='+"'/projectSlideDetail/"+data.id[i]+"'"+'"">Detalles</button>\n'+
                                     // '<button class="btn btn-outline-danger js-tooltip" type="submit"  onclick="location.href='+"'/projectDetail/23/"+data.id[i]+"'"+'"">Eliminar</button>'+
                                     
-                                    '<div style="float:left;height:1%;width:100%"></div>';                    
+                                    '<div style="float:left;height:10px;width:100%"></div>';                    
                         }else{
-                            html += '<div style="position: relative; right: 4%;float: right;padding: 2%; box-shadow: 1px 1px 3px rgb(100, 99, 99);border-radius:10px 0px 10px 10px;background-color:rgb(240, 255, 240);width: 80%">'+
+                            html += '<div style="position: relative; right: 4%;float: right;padding: 2%; box-shadow: 1px 1px 3px rgb(100, 99, 99);border-radius:10px 0px 10px 10px;background-color:rgb(240, 240, 255);min-width:35%;max-width:80%">'+
                                     
                                     data.meessages[i]+
-                                    '<p style="font-size: 12px;color:rgb(100,100,100);text-align: right; ">'+data.date[i]+'</p>'+
+                                    '<p style="margin-bottom: 0px;font-size: 12px;color:rgb(100,100,100);text-align: right; ">'+data.date[i]+'</p>'+
                                     '</div >' +
                                     // '<button class="btn btn-outline-info js-tooltip" type="submit"  onclick="location.href='+"'/projectSlideDetail/"+data.id[i]+"'"+'"">Detalles</button>\n'+
                                     // '<button class="btn btn-outline-danger js-tooltip" type="submit"  onclick="location.href='+"'/projectDetail/23/"+data.id[i]+"'"+'"">Eliminar</button>'+
                                     
-                                    '<div style="float:left;height:1%;width:100%"></div>'; 
+                                    '<div style="float:left;height:10px;width:100%"></div>'; 
 
                         }
                     }
@@ -408,6 +409,7 @@
 
             chatInput.style.display = 'block';
             actualizarDatos('/datos_actualizados_chat/'+project+'/_','chat');
+            
 
         });
 
@@ -489,98 +491,158 @@
 
         }
         var slide_url_format = "/media/slides/"+i+"/{z}/{y}/{x}.jpg";
+        console.log("{{mapSlide}}");
 
-        
+        if("{{mapSlide}}"!='None'){
         //window.alert(JSON.stringify(datosGeoJSON));
-        var polygon = [null];
-        var polyLine = [null];
-        var polygonPoints = [];
-        var polygonDraw  = false;
-        var numPoly = 0;
-        
-        var imageBounds = L.latLngBounds(
-        L.latLng(-62, -115),  // Coordenadas del borde inferior izquierdo
-        L.latLng(62, 115)   // Coordenadas del borde superior derecho
-        );
+            var polygon = [null];
+            var polyLine = [null];
+            var polygonPoints = [];
+            var polygonDraw  = false;
+            var numPoly = 0;
+            
+            var imageBounds = L.latLngBounds(
+            L.latLng(-62, -115),  // Coordenadas del borde inferior izquierdo
+            L.latLng(62, 115)   // Coordenadas del borde superior derecho
+            );
 
-        var map = L.map('map', {
-            center: [0,0],
-            zoom: h,
-            animate: true
-        });
-        var layer =  L.tileLayer(slide_url_format, {
-            minZoom:2,
-            noWrap: true,
-            keepBuffer:8,
-            maxZoom:j
-        }).addTo(map);
-        if("{{optionNum}}"==1){
-            for (var i = 0; i < geojson_list.length; i++) {
-                var geojson = JSON.parse(geojson_list[i].geojson);
-                console.log(geojson);
-                L.geoJSON(geojson, {
-                style: function (feature) {
-                    return { color: feature.properties.color };
-                },
-                pointToLayer: function (feature, latlng) {
-                    
-                    if (feature.geometry.type === "Point" && feature.properties.radius) {
-                        if (feature.properties.radius < 0){
-                            return L.circleMarker(latlng);  
-                        }else{
-                            return L.circle(latlng, feature.properties.radius, { color: feature.properties.color });
-                        // Crear un circle marker si la característica es un circle marker
-                        }
-                    } else if (feature.geometry.type === "Point") {
-                        // Crear un marcador estándar si la característica es un punto
-                        return L.marker(latlng);
-                    }
-                    return L.layerGroup();
-                }
-            }).bindTooltip(function (layer) {
-                    return layer.feature.properties.tooltipMessage;
-                }).bindPopup(function (layer) {
-                    return layer.feature.properties.clickMessage;
+                var map = L.map('map', {
+                    center: [0,0],
+                    zoom: h,
+                    animate: true
+                });
+                var layer =  L.tileLayer(slide_url_format, {
+                    minZoom:2,
+                    noWrap: true,
+                    keepBuffer:8,
+                    maxZoom:j
                 }).addTo(map);
+                map.attributionControl.setPrefix(false);
+                var miniMap = new L.Control.MiniMap(
+                    L.tileLayer(slide_url_format),
+                    { toggleDisplay: true }
+                );
+
+                // Agrega el minimapa al mapa principal
+                miniMap.addTo(map);
+                // var creditsControl = L.controlCredits({
+                //     imageurl: '/media/2.jpg',
+                //     tooltip: 'Made by PrisLab',
+                //     width: '45px',
+                //     height: '45px',
+
+                //     imagealt: "Créditos personalizados alternativos",
+                //     expandcontent: 'Interactive mapping<br/>by <a href="https://pris.eie.ucr.ac.cr/" target="_blank">GreenInfo Network</a>',
+                // }).addTo(map);
+            if("{{optionNum}}"==1){
+                for (var i = 0; i < geojson_list.length; i++) {
+                    var geojson = JSON.parse(geojson_list[i].geojson);
+                    console.log(geojson);
+                    L.geoJSON(geojson, {
+                    style: function (feature) {
+                        return { color: feature.properties.color };
+                    },
+                    pointToLayer: function (feature, latlng) {
+                        
+                        if (feature.geometry.type === "Point" && feature.properties.radius) {
+                            if (feature.properties.radius < 0){
+                                return L.circleMarker(latlng);  
+                            }else{
+                                return L.circle(latlng, feature.properties.radius, { color: feature.properties.color });
+                            // Crear un circle marker si la característica es un circle marker
+                            }
+                        } else if (feature.geometry.type === "Point") {
+                            // Crear un marcador estándar si la característica es un punto
+                            return L.marker(latlng);
+                        }
+                        return L.layerGroup();
+                    }
+                }).bindTooltip(function (layer) {
+                        return layer.feature.properties.tooltipMessage;
+                    }).bindPopup(function (layer) {
+                        return layer.feature.properties.clickMessage;
+                    }).addTo(map);
+                }
             }
+            //var capaGeoJSON = L.geoJSON(datosGeoJSON).addTo(map);
+            
+            var pos = map.getBounds();
+            var pos2 = pos.getNorthWest();
+            var pos11 = pos2.lat;
+            var pos12 = pos2.lng;
+            var pos3 = pos.getSouthEast()
+            var pos21 = pos3.lat;
+            var pos22 = pos3.lng;
+            var popup = L.popup();  
+        
+            
+            var mapContainer = map.getContainer();
+            mapContainer.addEventListener('mouseenter', function() {
+                if(polygonDraw){
+                    mapContainer.classList.add('custom-cursor');
+                }
+            });
+            mapContainer.addEventListener('mouseleave', function() {
+                if(polygonDraw){
+                    mapContainer.classList.remove('custom-cursor');
+                }
+            });
+            map.on('zoomstart', function () {
+                map.setMaxBounds(null);
+            });
+
+            // Restablecer los límites cuando finaliza el zoom
+            map.on('zoomend', function () {
+                map.setMaxBounds(imageBounds);
+            });
         }
-        //var capaGeoJSON = L.geoJSON(datosGeoJSON).addTo(map);
-        
-        var pos = map.getBounds();
-        var pos2 = pos.getNorthWest();
-        var pos11 = pos2.lat;
-        var pos12 = pos2.lng;
-        var pos3 = pos.getSouthEast()
-        var pos21 = pos3.lat;
-        var pos22 = pos3.lng;
-        var popup = L.popup();  
-    
-        
-        var mapContainer = map.getContainer();
-        mapContainer.addEventListener('mouseenter', function() {
-            if(polygonDraw){
-                mapContainer.classList.add('custom-cursor');
-            }
-        });
-        mapContainer.addEventListener('mouseleave', function() {
-            if(polygonDraw){
-                mapContainer.classList.remove('custom-cursor');
-            }
-        });
-
         const chatSocket = new WebSocket(
-        "ws://{{ request.get_host }}/ws/projects/"+ project +"/"
+        "ws://{{ request.get_host }}/ws/projects/{{ project.id }}/"
         );
- 
+        const messageList = document.getElementById('datos_actualizados');
+        const messageInput = document.getElementById('message-input');
 
-        map.on('zoomstart', function () {
-            map.setMaxBounds(null);
+        function scrollToBottom() {
+            messageList.scrollTop =  messageList.scrollHeight;
+        }
+
+        chatSocket.onmessage = (event) => {
+            const messageData = JSON.parse(event.data);
+            const messageItem = document.createElement('li');
+            // messageItem.innerText = `${messageData.user}: ${messageData.message}`;
+            if(`${messageData.user}` != '{{user_id}}'){
+                messageItem.innerHTML = '<div style=" position: relative; left: 4%;float: left;padding: 2%; box-shadow: 1px 1px 3px rgb(100, 99, 99);border-radius:0px 10px 10px 10px;background-color:rgb(255, 255, 255);min-width:35%;max-width:80%">'+
+                        '<p style="margin-bottom: 0px;font-size: 15px;color:'+generarColorAleatorio(`${messageData.username}`)+'"><b>'+`${messageData.username}`+':</b></p>'+
+                        `${messageData.message}`+
+                        '<p style="margin-bottom: 0px;font-size: 12px;color:rgb(100,100,100);text-align: right; ">'+`${messageData.fecha}`+'</p>'+
+                        '</div >' +
+                        '<div style="float:left;height:10px;width:100%"></div>';                    
+            }else{
+                messageItem.innerHTML = '<div style="position: relative; right: 4%;float: right;padding: 2%; box-shadow: 1px 1px 3px rgb(100, 99, 99);border-radius:10px 0px 10px 10px;background-color:rgb(240, 240, 255);min-width:35%;max-width:80%">'+
+                        
+                    `${messageData.message}`+
+                        '<p style="margin-bottom: 0px;font-size: 12px;color:rgb(100,100,100);text-align: right; ">'+`${messageData.fecha}`+'</p>'+
+                        '</div >' +
+                        '<div style="float:left;height:10px;width:100%"></div>'; 
+
+            }
+            console.log(messageItem);
+            messageList.appendChild(messageItem);
+            scrollToBottom();
+        };
+
+        document.getElementById('message-form').addEventListener('submit', (event) => {
+            event.preventDefault();
+            const message = messageInput.value;
+            const user = userId;
+            const newMessage = JSON.stringify({ message,user });
+            newMessage.user = user;
+            console.log(newMessage);
+            chatSocket.send(JSON.stringify({ message,user }));
+            messageInput.value = '';
         });
 
-        // Restablecer los límites cuando finaliza el zoom
-        map.on('zoomend', function () {
-            map.setMaxBounds(imageBounds);
-        });
+        
         abrirModal.addEventListener('click', function() {
             modal.style.display = 'block';
         });
@@ -651,8 +713,8 @@
     <div style="position: relative; padding-top: 2%;overflow-y: scroll;height: 8%;bottom:0%;width:100%">
         <div style="display: none;" id="chatInput">
         <form id="message-form" >
-            <input type="text" name="message" id="message-input" placeholder="Escribe un mensaje...">
-            <button class="btn btn-outline-primary js-tooltip" id="send-button"><i style="font-size: 20px;" class="material-icons">send</i></button>
+            <input type="text"  autocomplete="off" name="message" id="message-input" placeholder="Escribe un mensaje...">
+            <button type="submit" class="btn btn-outline-primary js-tooltip" id="send-button"><i style="font-size: 20px;" class="material-icons">send</i></button>
         </form>
         </div>
     </div>
@@ -735,7 +797,7 @@
             {%if optionNum == 1%}
                 <button style="width: 100%;" class="btn btn-outline-dark js-tooltip" type="submit" onclick="location.href='/projectDetail/{{project.id}}/1/0'"><i class="material-icons">home</i></button>
                 <div style="height: 3%;width: 100%;position: relative;float: left;"></div>
-                <button style="width: 100%;" class="btn btn-outline-dark js-tooltip" type="submit" onclick="location.href='{{ mapSlide.get_absolute_url }}'">Detalles</button>
+                <button style="width: 100%;" class="btn btn-outline-dark js-tooltip" type="submit" onclick="location.href='{{ mapSlide.get_absolute_url }}'">Abrir</button>
                 <div style="height: 3%;width: 100%;position: relative;float: left;"></div>
                 <button id ="abrirModal" style="width: 100%;" class="btn btn-outline-dark js-tooltip" type="submit" onclick="location.href='#'">Editar Lámina</button> 
                 <div style="height: 3%;width: 100%;position: relative;float: left;"></div>
@@ -753,7 +815,8 @@
         </div>
         
         {%else%}
-            <div  style="padding-left: 5%;padding-right: 5%;overflow-y: scroll;position: relative;box-shadow: 1px 1px 10px rgb(100, 99, 99);background-color:rgb(255, 254, 254);left: 0%;top:2%;width:73%;height: 95%">
+        <!-- <div id="map" style="display: none;"></div> -->
+            <div  style="padding-bottom: 5%;padding-left: 5%;padding-right: 5%;overflow-y: scroll;position: relative;box-shadow: 1px 1px 10px rgb(100, 99, 99);background-color:rgb(255, 254, 254);left: 0%;top:2%;width:73%;height: 95%">
                 <div style="position:relative;padding: 2%;top:3%;width: 100%;">
                     <h1 style="text-align: center;">{{project.name}}</h1>
                     <!-- <hr>     -->
@@ -771,22 +834,26 @@
                     <h2>Creador del poryecto</h2>
                 </div> -->
                 <h4 style="text-align: center;">Datos del propietario</h4>
-                <div style="position:relative;float: left;width:50%;padding: 2%;">
-                    
-                    <table>
-                        <tr>
-                            <td ><h3 >Nombre: </h3></td>
-                            <td ><h4 >{{project.user.first_name}} {{project.user.last_name}}</h4></td>
-                        </tr>
-                        <tr>
-                            <td ><h3 >Usuario: </h3> </td>
-                            <td ><h4 >{{project.user}} </h4></td>
-                        </tr>
-                        <tr>
-                            <td ><h3>Correo: </h3> </td>
-                                <td ><h5 >{{project.user.email}}</h5></td>
-                        </tr>
-                    </table>
+                <div style="position:relative;float: left;width:100%;padding: 2%;">
+                    <div class="titulo-y-botones" >
+                        <div style="margin-right: 15px;padding-bottom: 170px;position: relative;width: 170px" >
+                            <img style="object-fit: cover;width: 100%;height: 100%;position: absolute;border-radius: 50%;" src="{{ project.user.userprofile.profile_image.url }}" alt="Imagen de Perfil">
+                        </div>  
+                        <table>
+                            <tr>
+                                <td ><h3 >Nombre: </h3></td>
+                                <td ><h4 >{{project.user.first_name}} {{project.user.last_name}}</h4></td>
+                            </tr>
+                            <tr>
+                                <td ><h3 >Usuario: </h3> </td>
+                                <td ><h4 >{{project.user}} </h4></td>
+                            </tr>
+                            <tr>
+                                <td ><h3>Correo: </h3> </td>
+                                    <td ><h5 >{{project.user.email}}</h5></td>
+                            </tr>
+                        </table>
+                    </div>
                 </div>
                 <hr style="position:relative;float: left;width: 100%;"> 
                 <div style="position:relative;float: left;width: 100%;">
@@ -815,36 +882,54 @@
                 <div style="position:relative;float: left;top:2%;width: 100%;padding: 2%;">
                     <h2>Colaboradores</h2>
                 </div>
-                    <div style="position: relative; float: left;left: 2%; width: 96%">
-                        <div style="padding: 2%; box-shadow: 1px 1px 3px rgb(100, 99, 99);border-radius:10px;background-color:rgb(255, 255, 255);width: 100%">
-                            <h3 style="text-align: center;">{{project.user}} (Propietario)</h3> 
+                    <!-- <div style="position: relative; float: left;left: 2%; width: 96%">
                         
+                        <div style="padding: 1%; width: 100%">
+                            <hr style="margin: 0;">
+                            <h3 >{{project.user}} (Propietario)</h3> 
+
+                            <h4 >{{project.user.first_name}} {{project.user.last_name}}</h4>
                         </div>
-                    </div>
-                    <div style="float:left;height:2%;width:100%"></div>
+                    </div> -->
                
-                {%for data in member%}
+                {%for data in admin%}
                 <!-- if(data.id[i]!=data.ownerID){-->
-                            <div style="position: relative; float: left;left: 2%; width: 96%">
-                                <div style="padding: 2%; box-shadow: 1px 1px 3px rgb(100, 99, 99);border-radius:10px;background-color:rgb(255, 255, 255);width: 100%">
+                            <div style="padding: 1%;position: relative; float: left;left: 2%; width: 96%">
+                                    <hr style="margin: 0;">
                                     <div class="titulo-y-botones">
-                                    <h3 style="text-align: center;">{{data.username}}</h3>
-                                
-                                <!-- if(data.ownerID.toString()=='{{user_id}}'){ -->
+                                        <div style="padding-bottom: 80px;position: relative;width: 80px;" >
+                                            <img style="object-fit: cover;width: 100%;height: 100%;position: absolute;border-radius: 50%;" src="{{ data.userprofile.profile_image.url }}" alt="Imagen de Perfil">
+                                        </div>   
+                                        <div style="margin-left: 15px;">
+                                        <h3 >{{data.username}} (Admin)</h3>
+                                        <h4 >{{data.first_name}} {{data.last_name}}</h4>
+                                    </div>
                                 {%if user_id == project.user.id%}
                                     <a href="#" style="display: inline-block;display: flex;position: absolute;right: 2%;"><i   class="btn-opcion material-icons" onclick="location.href='/deleteProjectUser/{{project.id}}/{{data.id}}'" >person_remove</i></a>
                                 {%endif%}
                                </div>
-                                <table style="padding: 15px;text-align: right;width:100%">
-                                <tr>
-                                <td ></td>
-                                
-                                
-                                </tr>
-                                </table>
+                                </div>
+                    
+                {%endfor%}
+                {%for data in member%}
+                <!-- if(data.id[i]!=data.ownerID){-->
+                            <div style="padding: 1%;position: relative; float: left;left: 2%; width: 96%">
+                                    <hr style="margin: 0;margin-bottom: 2%;">
+                                    <div class="titulo-y-botones">
+                                        <div style="padding-bottom: 80px;position: relative;width: 80px;" >
+                                            <img style="object-fit: cover;width: 100%;height: 100%;position: absolute;border-radius: 50%;" src="{{ data.userprofile.profile_image.url }}" alt="Imagen de Perfil">
+                                        </div>   
+                                        <div style="margin-left: 15px;">
+                                        <h3 >{{data.username}}</h3>
+                                        <h4 >{{data.first_name}} {{data.last_name}}</h4>
+                                    </div>
+                                <!-- if(data.ownerID.toString()=='{{user_id}}'){ -->
+                                {%if isAdmin%}
+                                    <a href="#" style="display: inline-block;display: flex;position: absolute;right: 2%;"><i   class="btn-opcion material-icons" onclick="location.href='/deleteProjectUser/{{project.id}}/{{data.id}}'" >person_remove</i></a>
+                                {%endif%}
+                               
                                 </div>
                                 </div>
-                                <div style="float:left;height:2%;width:100%"></div>
                     
                 {%endfor%}
                 

@@ -14,6 +14,7 @@ class Project(models.Model):
     description = models.CharField(max_length=500)
 
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    adminUsers = models.ManyToManyField(User, related_name='adminUsers')
     sharedUsers = models.ManyToManyField(User, related_name='sharedUsers')
     invitedUsers = models.ManyToManyField(User, related_name='invitedUsers')
 
@@ -26,6 +27,7 @@ class Project(models.Model):
 class ProjectSlide(models.Model):
     name = models.CharField(max_length=25)
     description = models.CharField(max_length=500)
+    adminPermission = models.BooleanField(default=False)
 
 
     slide = models.ForeignKey(Slide, on_delete=models.SET_NULL, null=True)

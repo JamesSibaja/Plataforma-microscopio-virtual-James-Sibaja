@@ -10,6 +10,8 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from .forms import LoginForm, CreateUserForm
+from .forms import CustomUserChangeForm
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 def home(request):
@@ -44,5 +46,31 @@ class SignUp(generic.CreateView):
 
     def form_valid(self,form):
         return super(SignUp,self).form_valid(form)
+    
+@login_required
+def edit_profile(request):
+    if request.method == 'POST':
+        form = CustomUserChangeForm(request.POST, request.FILES, instance=request.user)
+        if form.is_valid():
+            user = form.save()
+            user_profile = request.user.userprofile
+
+            if 'profile_image' in request.FILES:
+                profile_image = request.FILES['profile_image']
+                user_profile.profile_image = profile_image
+
+        # Puedes guardar otros campos del UserProfile aquí
+
+            user_profile.save()
+            # new_password = form.cleaned_data.get('new_password1')
+            # if new_password:
+            #     user.set_password(new_password)
+            user.save()
+            return redirect('/project/')
+            # Realiza acciones adicionales si es necesario
+    else:
+        form = CustomUserChangeForm(instance=request.user)
+    
+    return render(request, 'VMapp/edit_profile.html', {'form': form})
 
 

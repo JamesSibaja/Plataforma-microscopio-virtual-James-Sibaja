@@ -1,2 +1,0 @@
-2023-07-17 13:03:12.700 [info] Initial editor state {"filesToOpenOrCreate":[{"fileUri":{"$mid":1,"path":"/etc/postgresql/15/main/pg_hba.conf","scheme":"file"},"type":1,"exists":true,"options":{}}],"filesToDiff":[],"filesToMerge":[]}
-2023-07-17 13:03:16.213 [info] [perf] Render performance baseline is 56ms

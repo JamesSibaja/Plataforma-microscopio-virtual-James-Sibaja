@@ -8,6 +8,31 @@
     z-index: 1000;
 }
 
+.custom-big-image-button {
+    font-size: 20px; /* Cambia el tamaño del texto (ícono) */
+    border-radius: 5px; /* Agrega esquinas redondeadas */
+}
+.custom-big-image-button:hover {
+    cursor: pointer;
+}
+/* @media print {
+  
+  body {
+    margin: 0;
+    padding: 0;
+    background: none;
+  }
+} */
+.leaflet-control-measure .results .group:first-child {
+    
+    height: 0;
+    color: rgb(0,0,0,0);
+}
+
+.lastpoint .heading{
+    color: rgb(0,0,0,0);
+    margin-top: 100px;
+}
 #custom-button-container2 {
     position: absolute;
     bottom: 400px;
@@ -29,6 +54,11 @@
 #custom-button:hover {
     background-color: rgb(243, 243, 243);
     cursor: pointer;
+}
+.has-overflow {
+    /* Aplica los estilos que desees para el contenedor con overflow aquí */
+    /* Cambia el color de fondo */
+    pointer-events: auto;
 }
 
 #colorPicker:hover {
@@ -124,7 +154,12 @@
         var cerrarModal = document.getElementById('cerrarModal');
         var cerrarModal2 = document.getElementById('cerrarModal2');
         var contenedor = document.getElementById('menuPrincipal');
+        // var imprimir = document.getElementById('imprimir');
 
+        // imprimir.addEventListener('click', function(event) {
+        //     capturarImagen();
+        // });
+        
         contenedor.addEventListener('mouseenter', () => {
             map.dragging.enable(); // Desactiva la interacción de arrastre del mapa
             map.scrollWheelZoom.enable(); // Desactiva el zoom con la rueda del ratón
@@ -167,7 +202,11 @@
         var map = L.map('map', {
             center: [0,0],
             zoom: h,
-            animate: true
+            animate: true,
+            fullscreenControl: true,
+            fullscreenControlOptions: {
+                position: 'bottomright'
+            }
         });
 
         var customZoomControl = L.control.zoom({
@@ -180,10 +219,70 @@
         map.removeControl(map.zoomControl);
 
         var layer =  L.tileLayer(slide_url_format, {
-            minZoom:2,
+            minZoom:0,
             noWrap: true,
             keepBuffer:8,
             maxZoom:j
+        }).addTo(map);
+
+        map.attributionControl.setPrefix(false);
+        var miniMap = new L.Control.MiniMap(
+                    L.tileLayer(slide_url_format),
+                    { position: 'bottomleft', toggleDisplay: true },
+                    { toggleDisplay: true }
+                );
+
+                // Agrega el minimapa al mapa principal
+        miniMap.addTo(map);
+        
+        L.control.bigImage({
+            position: 'bottomright',
+            title: 'Obtener imagen',
+            printControlLabel:'📷',
+            printControlClasses: ['custom-big-image-button'],
+            minScale:1,
+            maxScale:1,
+            inputTitle:'Escala de foto',
+
+            downloadTitle:'Descargar',
+        }).addTo(map);
+        // });
+        
+
+        L.control.fullscreen({
+            position: 'topright',  // Posición del botón (topright, topleft, bottomright, bottomleft)
+            title: 'Pantalla completa',  // Texto que aparecerá cuando el usuario pase el cursor sobre el botón
+            titleCancel: 'Salir de pantalla completa',  // Texto para salir de pantalla completa
+            forceSeparateButton: true  // Mostrar un botón separado para salir de pantalla completa
+        }).addTo(map);
+
+// printPlugin.printMap('A4Portrait', 'MyFileName');
+        i18next.init({
+            lng: 'es', // Idioma de localización
+            resources: {
+                es: {
+                    translation: {
+                        version: 'Versión', // Ejemplo de traducción
+                        lastpoint:  '',
+                        // ... Más traducciones aquí
+                        
+                    }
+                }
+            }
+        });
+
+        
+        L.control.measure({
+            primaryLengthUnit: 'meters', // Unidad de medida principal
+            secondaryLengthUnit: 'kilometers', // Unidad de medida secundaria
+            primaryAreaUnit: 'sqmeters', // Unidad de área principal
+            secondaryAreaUnit: undefined, // Deja esto como undefined para deshabilitar el cálculo de áreas
+            // Posición del control en el mapa
+            activeColor: '#db4a29', // Color activo para las líneas y áreas medidas
+            completedColor: '#9b2d14', // Color completado para las líneas y áreas medidas
+            position: 'bottomright',
+            localization: 'es', 
+            className: 'custom-measure-control' 
         }).addTo(map);
 
         var pos = map.getBounds();
@@ -242,7 +341,9 @@
                 notasMenu.style.display = 'none';
             }
         });
-
+        if (notasMenu.scrollHeight > notasMenu.clientHeight) {
+            notasMenu.classList.add('has-overflow');
+        }
         //var geojsonLayer = L.geoJSON(datosGeoJSON).addTo(map);
 
         $('#MyButton').click(function(e){
@@ -256,6 +357,28 @@
                 [pos21, pos22]
             ]);
         });
+
+        // L.control.fullscreen({
+        //     position: 'topleft', // change the position of the button can be topleft, topright, bottomright or bottomleft, default topleft
+        //     title: 'Show me the fullscreen !', // change the title of the button, default Full Screen
+        //     titleCancel: 'Exit fullscreen mode', // change the title of the button when fullscreen is on, default Exit Full Screen
+        //     content: null, // change the content of the button, can be HTML, default null
+        //     forceSeparateButton: true, // force separate button to detach from zoom buttons, default false
+        //     forcePseudoFullscreen: true, // force use of pseudo full screen even if full screen API is available, default false
+        //     fullscreenElement: false // Dom element to render in full screen, false by default, fallback to map._container
+        // }).addTo(map);
+
+        // // events are fired when entering or exiting fullscreen.
+        // map.on('enterFullscreen', function(){
+        //     console.log('entered fullscreen');
+        // });
+
+        // map.on('exitFullscreen', function(){
+        //     console.log('exited fullscreen');
+        // });
+
+        // you can also toggle fullscreen from map object
+        // map.toggleFullscreen();
 
         map.on('zoomstart', function () {
             map.setMaxBounds(null);
@@ -371,8 +494,8 @@
     
     
 </div>
-<div style = "position: absolute; right: 3%;top:10%;padding: 0%;border-radius:10px; background-color:rgba(221, 220, 220, 0.8);width:10%">
-    <button style=" width: 100%;" class="btn btn-outline-dark  btn-block js-tooltip" type="submit" onclick="location.href='/projectDetail/{{projectSlide.project.id}}/1/{{projectSlide.id}}'">Retroceder</button>
+<div style = "position: absolute; right: 5%;top:9%;padding: 0%;border-radius:10px; background-color:rgba(221, 220, 220, 0.8);width:10%">
+    <button style=" width: 100%;" class="btn btn-outline-dark  btn-block js-tooltip" type="submit" onclick="location.href='{{ projectSlide.project.get_absolute_url }}'">Retroceder</button>
 </div>
 <!-- <button id="colorPickerBtn">Elegir color</button>
 <div id="colorPickerMenu" style="display: none;">

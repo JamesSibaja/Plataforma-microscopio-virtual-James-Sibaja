@@ -5,8 +5,48 @@
   
 <style>
 
-  tr:nth-child(even) {
-  background-color: #dddddd;
+
+  .product-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    margin: 20px;
+}
+
+.product {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background-color: #e0e0e06e;
+    width: 27%;
+    height: 30%;
+    text-align: center;
+    padding: 20px;
+    margin: 2%;
+}
+
+.product-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+}
+
+.product:hover .product-image {
+    transform: scale(1.05);
+}
+
+.product-name {
+    margin: 10px 0;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.product-description {
+    font-size: 1rem;
+    color: #555;
+    overflow-y: scroll;
 }
 </style>
 <script>
@@ -20,7 +60,7 @@
   <div class="separar"></div>  
  
     <h1 style="text-align: center;">Placas virtuales</h1>
-    <div id ='search_input' style="float: left; padding-left: 5%; width: 80%;">
+    <div id ='search_input' style="float: left; padding-left: 5%; width: 75%;">
       <form method="get" >  
         
           <div  style=" width: 80%;float: left;">
@@ -35,78 +75,15 @@
       </form>
     </div>
     {%load static%} 
-      {%if ver%}
+     
     
-      <div id ='search_input' style="float: left; ">
-        <span>
-          <form method="get">
-        
-            <input class="btn btn-success js-tooltip" name="texto" type="submit" value='Lista'>
-        
-          </form>
-        </span>
-      </div>
-    <ul>
-    <div class="pagination" style="width: 100%; justify-content: center;">
-      <span class="step-links" >
-          {% if catalogo.has_previous %}
-              <a href="?page=1">&laquo; Primera</a>
-              <a href="?page={{ catalogo.previous_page_number }}">anterior</a>
-          {% endif %}
-    
-          <span class="current">
-              Página {{ catalogo.number }} de {{ catalogo.paginator.num_pages }}.
-          </span>
-    
-          {% if catalogo.has_next %}
-              <a href="?page={{ catalogo.next_page_number }}">siguiente</a>
-              <a href="?page={{ catalogo.paginator.num_pages }}">Última &raquo;</a>
-          {% endif %}
-      </span>
-    </div>  
-      
-      {%for slide in catalogo%}
-    <div style=" float: left;padding: 2%;border-radius:10px;width: 32%;">
-        <!-- <h2 style="text-align: center;">{{slide.name}}</h2> 
-       -->
-      <div class="imgbox" >
-        <p><img src="{{slide.image.url}}" style="box-shadow: 1px 1px 10px rgb(100, 99, 99);width: 100%;border-radius:10px"></p> 
-      </div>
-      <button class="btn btn-info js-tooltip" type="submit" onclick="location.href='{{ slide.get_absolute_url }}'">Ver</button>
-       
-      <!-- <button class="btn btn-outline-success js-tooltip" type="submit" onclick="location.href='/project2/{{slide.id}}'">Seleccionar</button> -->
+    <div  style="float: left;">
       <span>
-      <form  method="get">
-        <input type="hidden" name="placaId" value={{slide.id}}>
-     
-        <button class="btn btn-outline-success js-tooltip" type="submit" >Seleccionar</button>
-     
-    </form>
-  </span>
-      <!-- <form method="get" >  
-        
-        <div  style=" width: 80%;float: left;">
-          
-          <input type="hidden" name="placaId" value="{{slide.id}}">
-        </div>
-        <span>
-          <button class="btn btn-outline-success js-tooltip" type="submit" >Seleccionar</button>
-        </span>
-       -->
-    <!-- </form> -->
-     
-
-    </div>
-    {%endfor%}
-    {%else%}
-    
-    <div id ='search_input' style="float: left;">
-      <span>
-        <form method="get">
-      
-          <input class="btn btn-success js-tooltip" name="ver" type="submit" value='Catálogo'>
-      
-        </form>
+        {% if user.is_authenticated %}
+        {% if user.is_staff %}
+          <button class="btn btn-success js-tooltip" onclick="location.href='{% url 'upload_file' %}'" ><i class="material-icons">note_add</i>Añadir Lámina Virtual</button>
+          {% endif %}
+          {% endif %}
       </span>
     </div>
 
@@ -128,34 +105,44 @@
           {% endif %}
       </span>
     </div>  
-    <table style=" border-collapse: collapse;padding: 15px;text-align: left;width:100%">
+    <!-- <table class="product-table" >
       <tr>
         <th><h2>Nombre</h2></th>
         <th><h2>Descripción</h2></th>
         <th></th> 
         <th></th>
-      </tr>
+      </tr> -->
+      <div class="product-list">
     {%for slide in catalogo%}
+    <div class="product " onclick="location.href='{{ slide.get_absolute_url }}'">
+        <img src="{{slide.image.url}}" alt="{{ product.name }}" class="product-image">
+        <h2 class="product-name">{{slide.name}} </h2>
+        <p class="product-description">{{slide.description}}</p>
+    </div>
+      <!-- <tr class="btn-catalogo" onclick="location.href='{{ slide.get_absolute_url }}'">
+          <td>{{slide.name}}  </td>
+          <td>{{slide.description}}</td> -->
+          <!-- <td><a  href='{{ slide.get_absolute_url }}'>Ver</a> </td>  -->
+          <!-- <td> 
+           
+            <div style="margin-bottom: 2%;margin-left: 10%;padding-bottom: 70%;position:fix;width: 10%" >
     
-      <tr>
-      <td>{{slide.name}}  </td>
-      <td>{{slide.description}}</td>
-      <td><a  href='{{ slide.get_absolute_url }}'>Ver</a> </td> 
-      <td>
-      <form  method="get">
-        <input type="hidden" name="placaId" value={{slide.id}}>
-      <span>
-        <button class="btn btn-outline-success js-tooltip" type="submit" >Seleccionar</button>
-      </span>
-    </form>
-  </td>
-      <!-- <th><a  href='/project2/{{slide.id}}'>Seleccionar</a></th> -->
-    </tr>
+              <img class="product-image"  src="{{slide.image.url}}" alt="Imagen de Perfil">
+            
+          </td> -->
+          <!-- <td>
+              <form  method="get">
+                <input type="hidden" name="placaId" value={{slide.id}}>
+              <span>
+                <button class="btn btn-outline-success js-tooltip" type="submit" >Seleccionar</button>
+              </span>
+            </form>
+          </td> -->
+    <!-- </tr> -->
 
 
 {%endfor%}
-</table>
-    {%endif%}
+      </div>
     
 
     </ul>
