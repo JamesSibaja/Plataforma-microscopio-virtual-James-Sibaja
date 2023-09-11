@@ -19,7 +19,7 @@ services:
   web:
     build:
       context: .
-    command: python manage.py runserver 0.0.0.0:8000
+    command: python VirtualMicroscope/manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/code
     ports:
