@@ -10,7 +10,8 @@ setup:
 	docker compose up -d
 	docker compose exec web python manage.py makemigrations
 	docker compose exec web python manage.py migrate
-
+	sleep 10
+	
     # Crear un superusuario (cambiar los valores de acuerdo a tus necesidades)
 	docker-compose exec web python manage.py createsuperuser --username=postgres --email=jsibajagranados2@gmail.com
 
