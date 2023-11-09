@@ -1,4 +1,6 @@
-VirtualMicroscope/media/
+VirtualMicroscope/media/archivo/*
+VirtualMicroscope/media/slides/*
+venv/*
 
 # Ignorar archivos y carpetas específicos
 __pycache__/

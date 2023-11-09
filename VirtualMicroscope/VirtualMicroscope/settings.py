@@ -40,8 +40,8 @@ ALLOWED_HOSTS = ['*']
 
 
 # Application definition
-CELERY_BROKER_URL = 'redis://localhost:6379/0' 
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0' 
+CELERY_BROKER_URL =  'redis://redis:6379/0'
+CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
  # Cambia esto según la ubicación de tu servidor RabbitMQ
 # CELERY_RESULT_BACKEND = 'django-db+postgresql://postgres:microVirtual@localhost:5432/microscopio' # Cambia esto según tu preferencia
 
@@ -57,9 +57,8 @@ CELERY_TASK_TRACK_STARTED = True
 # CELERY_TASK_TIME_LIMIT = 30 * 60
 
 INSTALLED_APPS = [
-    
-    'VMapp',
     'Microscopio',
+    'VMapp',    
     'Projects',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -129,7 +128,7 @@ DATABASES = {
         'NAME': 'microscopio',
         'USER': 'postgres',
         'PASSWORD': 'microVirtual',
-        'HOST': 'localhost',
+        'HOST': 'db',
         'PORT': '5432',
         'OPTIONS': {
             'options': '-c timezone=UTC',
@@ -179,11 +178,12 @@ USE_L10N = True
 
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static"),
-    '/static/',
+    # '/static/',
 )
 
 STATIC_URL = '/static/'
 
 # remove STATIC_ROOT
-MEDIA_URL = '/media/'
+
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'

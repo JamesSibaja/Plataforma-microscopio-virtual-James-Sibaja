@@ -1,14 +1,3 @@
-# from __future__ import absolute_import, unicode_literals
-# import os
-# from celery import Celery
-# from django.conf import settings
-
-# os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'VirtualMicroscope.settings')
-
-# app = Celery('VirtualMicroscope')
-# app.config_from_object('django.conf:settings', namespace='CELERY')
-# app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
-
 import os
 
 from celery import Celery
@@ -18,7 +7,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'VirtualMicroscope.settings')
 
 app = Celery('VirtualMicroscope')
 
-# Using a string here means the worker doesn't have to serialize
+# Using a string here means the worker doesn't plataforma-microscopio-virtual-james-sibaja-celery-1  | ModuleNotFoundError: No module named 'VirtualMicroscope.settings'have to serialize
 # the configuration object to child processes.
 # - namespace='CELERY' means all celery-related configuration keys
 #   should have a `CELERY_` prefix.

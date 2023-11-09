@@ -16,12 +16,19 @@ def convert_to_tiles(input_path, output_path, idOpenSLide, idSlide,tile_size=256
         
         # Calcula el nivel de zoom donde la imagen debe abarcar la totalidad de una tesela
         base_level = math.ceil(math.log(max(slide_width, slide_height) / tile_size, 2))
-        
+        # print(f"num_levels: {num_levels}")
+
+        if (base_level>num_levels):
+            base_level=num_levels
+            
         for level in range(num_levels):
+            # print(f"Saved: {level}--------------------------------------------")
+
             level_width, level_height = slide.level_dimensions[level]
             level_downsample = slide.level_downsamples[level]
             num_level_folder = base_level-level
             level_folder = os.path.join(output_path, str(num_level_folder))
+            # print(f"num_level_folder: {num_level_folder}")
             if num_level_folder>=0:
                 os.makedirs(level_folder, exist_ok=True)
                 
@@ -49,12 +56,20 @@ def convert_to_tiles(input_path, output_path, idOpenSLide, idSlide,tile_size=256
                         tile.save(tile_filename, "JPEG")
                         
                         print(f"Saved: {tile_filename}")
+                print(f"row: {row}")
         rawSlide = OpenSlide.objects.get(id=idOpenSLide)
         microscopeSlide = Slide.objects.get(id=idSlide)
         rawSlide.assembled = True
         microscopeSlide.assembled = True
+        microscopeSlide.zoomM = base_level
+        microscopeSlide.zoomI = 1
         rawSlide.save()
         microscopeSlide.save()
+        print(f"Saved: {num_levels}")
+        
+        
+        # Calcula el nivel de zoom donde la imagen debe abarcar la totalidad de una tesela
+        
         return base_level
     except Exception as e:
         # En caso de error, registra el error y retorna un mensaje de error

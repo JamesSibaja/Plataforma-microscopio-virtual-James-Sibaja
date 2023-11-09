@@ -10,7 +10,11 @@ from django.views.generic.edit import FormView
 from .forms import  UploadFileForm, SlideForm
 from .tasks import convert_to_tiles
 from django.http import JsonResponse
+import os
+import logging
 
+# Configura la configuración de registro según tus necesidades
+logger = logging.getLogger('myapp.view') 
 # Create your views here.
 
 class micro(generic.DetailView):
@@ -112,12 +116,14 @@ def upload_file(request):
             instance = OpenSlide(name=name)
             instance.save()
             # instance.image = 'slides/slide' +str(instance.id)+'/1/0/0.jpg'
-            instance.path = 'media/archivo/' +str(instance.id)
+            instance.path = 'media/archivo/' +str(instance.id) + '_' + uploaded_file.name
             # instance.zoomI = 0
             # instance.zoomM = 9
             instance.save()
 
-            with open('media/archivo/' +str(instance.id), 'wb') as destino:
+            os.makedirs('VirtualMicroscope/media/archivo/', exist_ok=True)
+
+            with open('VirtualMicroscope/media/archivo/' +str(instance.id)+ '_' + uploaded_file.name, 'wb') as destino:
                 for chunk in uploaded_file.chunks():
                     destino.write(chunk)
         
@@ -129,6 +135,7 @@ def upload_file(request):
             # else:
         #     return JsonResponse(form.errors, status=400)  # Devuelve errores de validación
         else:
+            logger.info('Hola1')
             form = SlideForm(request.POST, request.FILES)
             if form.is_valid():
                 option = int(request.POST.get('option'))
@@ -139,10 +146,11 @@ def upload_file(request):
                 instance.image = 'slides/slide' +str(instance.id)+'/1/0/0.jpg'
                 instance.path = 'slide' +str(instance.id)
                 instance.save()
+                logger.info('Hola')
                 # description = form.cleaned_data['description']
                 # name = form.cleaned_data['name']
 
-                convert_to_tiles.delay('media/archivo/' + str(instance.rawSlide.id),'media/slides/slide' +str(instance.id),instance.rawSlide.id,instance.id)
+                convert_to_tiles.delay(rawSlide.path,'media/slides/slide' +str(instance.id),instance.rawSlide.id,instance.id)
             else:
                 return JsonResponse(form.errors, status=400)  # Devuelve errores de validación
 
