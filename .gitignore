@@ -1,12 +1,13 @@
 VirtualMicroscope/media/archivo/*
 VirtualMicroscope/media/slides/*
 **/migrations/
-static/
-venv/
+static/*
+venv/*
 env/
 
 !VirtualMicroscope/media/archivo/
 !VirtualMicroscope/media/slides/
+!VirtualMicroscope/static/
 !venv/
 
 
