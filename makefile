@@ -7,6 +7,7 @@
 setup:
  	# sudo apt-get install docker-ce docker-ce-cli containerd.io
 	export DJANGO_SETTINGS_MODULE=settings
+	mkdir -p venv VirtualMicroscope/media/slide VirtualMicroscope/media/archivo
 	docker compose build
 	sudo apt-get install python3-pip
 	
