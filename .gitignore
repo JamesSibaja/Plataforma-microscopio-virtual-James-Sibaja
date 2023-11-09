@@ -1,6 +1,14 @@
 VirtualMicroscope/media/archivo/*
 VirtualMicroscope/media/slides/*
-venv/*
+**/migrations/
+static/
+venv/
+env/
+
+!VirtualMicroscope/media/archivo/
+!VirtualMicroscope/media/slides/
+!venv/
+
 
 # Ignorar archivos y carpetas específicos
 __pycache__/
@@ -14,3 +22,13 @@ __pycache__/
 # Ignorar archivos generados por el sistema
 .DS_Store
 Thumbs.db
+
+
+# Ignora archivos generados automáticamente por el sistema operativo
+.DS_Store
+
+
+# Ignora archivos locales de configuración
+local_settings.py
+
+
